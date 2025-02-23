@@ -1,0 +1,2 @@
+---- vector_undef Matches (1 in 1 files) ----
+boot_stub.S (D:\code\freertos-cell) line 19 : 	b	vector_undef
