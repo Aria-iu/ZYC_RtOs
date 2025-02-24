@@ -24,10 +24,10 @@ ASMFLAGS += -ffreestanding -Wextra -Wfatal-errors -Werror -O2 -g3 -D__ASSEMBLY__
 #	3. /freertos-runtime
 #	4. /freertos/Source/portable/GCC/ARM_A7jailhouse
 # CFLAGS += -I $(src) -I $(src)/freertos/Source/include -I $(src)/freertos-runtime -I $(src)/freertos/Source/portable/GCC/ARM_A7jailhouse
-
+CFLAGS += -I $(src)
 
 # 链接脚本
-LDFLAGS += -Wl -T lscript.lds -Map=cell.map -nostdlib
+LDFLAGS += -T lscript.lds -Map=cell.map -nostdlib
 
 # 命名。
 EXE_STEM = freertos-demo

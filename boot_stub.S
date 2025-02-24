@@ -4,7 +4,7 @@
 
 #include "mem_addr.h"
 
-.setion ".boot"
+.section ".boot"
 
 .global _start
 _start:
@@ -21,7 +21,8 @@ meminit:
 
 set_sp:
     // 链接脚本里面设置的栈，大小为0x1000
-    mov sp , stack_top
+    adr x0 , stack_top
+    mov sp , x0
     // 执行主函数
     bl inmate_main
     // 若主函数返回，直接无限制循环
