@@ -11,33 +11,33 @@
 
 链结器命令稿和内存映射
 
-                0x0000000000001000                . = 0x1000
+                0x0000000000000000                . = 0x0
 
-.boot           0x0000000000001000       0x30
+.boot           0x0000000000000000       0x30
  *(.boot)
- .boot          0x0000000000001000       0x30 boot_stub.o
-                0x0000000000001000                _start
-                0x0000000000002000                . = ALIGN (0x1000)
+ .boot          0x0000000000000000       0x30 boot_stub.o
+                0x0000000000000000                _start
+                0x0000000000001000                . = ALIGN (0x1000)
+                0x0000000000002000                . = (. + 0x1000)
+                0x0000000000002000                stack_top = .
                 0x0000000000003000                . = (. + 0x1000)
-                0x0000000000003000                stack_top = .
-                0x0000000000004000                . = (. + 0x1000)
-                0x0000000000004000                irq_stack_top = .
-                0x0000000000004000                bss_start = .
+                0x0000000000003000                irq_stack_top = .
+                0x0000000000003000                bss_start = .
 
-.bss            0x0000000000004000        0x0
+.bss            0x0000000000003000        0x0
  *(.bss)
- .bss           0x0000000000004000        0x0 main.o
- .bss           0x0000000000004000        0x0 boot_stub.o
+ .bss           0x0000000000003000        0x0 main.o
+ .bss           0x0000000000003000        0x0 boot_stub.o
  *(COMMON)
-                0x0000000000004000                bss_end = .
-                0x0000000000004000                . = ALIGN (0x4)
+                0x0000000000003000                bss_end = .
+                0x0000000000003000                . = ALIGN (0x4)
 
-.text           0x0000000000004000        0x8
+.text           0x0000000000003000        0x8
  *(.vectors)
  *(.text)
- .text          0x0000000000004000        0x8 main.o
-                0x0000000000004000                inmate_main
- .text          0x0000000000004008        0x0 boot_stub.o
+ .text          0x0000000000003000        0x8 main.o
+                0x0000000000003000                inmate_main
+ .text          0x0000000000003008        0x0 boot_stub.o
  *(.text.*)
  *(.gnu.linkonce.t.*)
  *(.plt)
@@ -52,40 +52,40 @@
 .rodata
  *(.rodata)
 
-.eh_frame       0x0000000000004008       0x28
- .eh_frame      0x0000000000004008       0x28 main.o
+.eh_frame       0x0000000000003008       0x28
+ .eh_frame      0x0000000000003008       0x28 main.o
 
-.rodata1        0x0000000000004030        0x0
-                0x0000000000004030                __rodata1_start = .
+.rodata1        0x0000000000003030        0x0
+                0x0000000000003030                __rodata1_start = .
  *(.rodata1)
  *(.rodata1.*)
-                0x0000000000004030                __rodata1_end = .
+                0x0000000000003030                __rodata1_end = .
 
-.data           0x0000000000004030        0x0
-                0x0000000000004030                __data_start = .
+.data           0x0000000000003030        0x0
+                0x0000000000003030                __data_start = .
  *(.data)
- .data          0x0000000000004030        0x0 main.o
- .data          0x0000000000004030        0x0 boot_stub.o
+ .data          0x0000000000003030        0x0 main.o
+ .data          0x0000000000003030        0x0 boot_stub.o
  *(.data.*)
  *(.gnu.linkonce.d.*)
  *(.jcr)
  *(.got)
  *(.got.plt)
-                0x0000000000004030                __data_end = .
+                0x0000000000003030                __data_end = .
 
-.sdata2         0x0000000000004030        0x0
-                0x0000000000004030                __sdata2_start = .
+.sdata2         0x0000000000003030        0x0
+                0x0000000000003030                __sdata2_start = .
  *(.sdata2)
  *(.sdata2.*)
  *(.gnu.linkonce.s2.*)
-                0x0000000000004030                __sdata2_end = .
+                0x0000000000003030                __sdata2_end = .
 
-.sbss2          0x0000000000004030        0x0
-                0x0000000000004030                __sbss2_start = .
+.sbss2          0x0000000000003030        0x0
+                0x0000000000003030                __sbss2_start = .
  *(.sbss2)
  *(.sbss2.*)
  *(.gnu.linkonce.sb2.*)
-                0x0000000000004030                __sbss2_end = .
+                0x0000000000003030                __sbss2_end = .
 LOAD main.o
 LOAD boot_stub.o
 OUTPUT(freertos-demo.elf elf64-littleaarch64)
