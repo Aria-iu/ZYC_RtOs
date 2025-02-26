@@ -536,9 +536,9 @@ static void prvSetupHardware(void)
   unsigned apsr;
   static unsigned long io_dev_map[2];
   uint32_t *ph_cfg_reg = PIO_P7_CFG_REG;
-  /* Set GREEN LED pin as output 
-  ph_cfg_reg[3] &= ~(0x7<<0); /* Clear PH24_SELECT 
-  ph_cfg_reg[3] |= 0x1<<0; /* Set PH24_SELECT as output 
+  /* Set GREEN LED pin as output
+  ph_cfg_reg[3] &= ~(0x7<<0); /* Clear PH24_SELECT
+  ph_cfg_reg[3] |= 0x1<<0; /* Set PH24_SELECT as output
 
   ser_dev = serial_open();
   io_dev_map[0] = (unsigned long)ser_dev;
@@ -548,7 +548,7 @@ static void prvSetupHardware(void)
   io_dev_map[1] = (unsigned long)gic_v2_init();
   if(USE_CACHE_MMU) hardware_mmu_ptable_setup(io_dev_map, ARRAY_SIZE(io_dev_map));
   if(USE_CACHE_MMU) hardware_cpu_cache_mmu_enable();
-  /* Replace the exception vector table by a FreeRTOS variant 
+  /* Replace the exception vector table by a FreeRTOS variant
   vPortInstallFreeRTOSVectorTable();
   hardware_fpu_enable();
   irq_enable(UART7_IRQ);
