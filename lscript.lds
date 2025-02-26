@@ -5,7 +5,6 @@
 EXTERN(_start)
 ENTRY(_start)
 
-
 SECTIONS {
 	/* jailhouse arm inmates have to start at address zero */
         . = 0x1000;
