@@ -55,6 +55,10 @@ void inmate_main(void)
   prvSetupHardware();
 
 	while(1){
+		dw8250_uart4_init();
+		putchar('z');
+		putchar('y');
+		putchar('c');
 		ARM_SLEEP;
 	}
 }

@@ -7,7 +7,7 @@
 
 // NOW we can not enable uart irq
 // #define UART7_IRQ
-
+#include <stdint.h>
 #include "uart.h"
 
 #define IRQ_UART4
@@ -41,18 +41,27 @@
 #define UART4_CPR UART4+0xf4
 #define UART4_UCV UART4+0xf8
 #define UART4_CTR UART4+0xfc
+#define UART4_DLF UART4+0xc0
 
 #define TYPE_CAST(type, val) ((type)(val))
-#define UART4_IER_DLH_ADDR(base)  TYPE_CAST(void *, (TYPE_CAST(char *, (base)) + UART4_IER_DLH))
+#define UART4_IER_DLH_ADDR(base)  TYPE_CAST(uint32_t *, (TYPE_CAST(char *, (base)) + UART4_IER_DLH))
+#define UART4_USR_ADDR(base) TYPE_CAST(uint32_t *, (TYPE_CAST(char *, (base)) + UART4_USR))
+#define UART4_IIR_FCR_ADDR(base) TYPE_CAST(uint32_t *, (TYPE_CAST(char *, (base)) + UART4_IIR_FCR))
+#define UART4_MCR_ADDR(base) TYPE_CAST(uint32_t *, (TYPE_CAST(char *, (base)) + UART4_MCR))
+#define UART4_LCR_ADDR(base) TYPE_CAST(uint32_t *, (TYPE_CAST(char *, (base)) + UART4_LCR))
+#define UART4_RBR_THR_DLL_ADDR(base) TYPE_CAST(uint32_t *, (TYPE_CAST(char *, (base)) + UART4_RBR_THR_DLL))
+#define UART4_DLF_ADDR(base) TYPE_CAST(uint32_t *, (TYPE_CAST(char *, (base)) + UART4_DLF))
+#define UART4_LSR_ADDR(base) TYPE_CAST(uint32_t *, (TYPE_CAST(char *, (base)) + UART4_LSR))
 
 struct dw_uart{
   void* base;
 };
-const struct dw_uart uart4 = {.base = (void*)UART4};
+
 
 typedef void * sio_fd_t;
 
-void uart4_init();
+void dw8250_uart4_init();
+void putchar(char c);
 
 sio_fd_t serial_open(void);
 // void serial_irq_rx_enable(sio_fd_t fd);
