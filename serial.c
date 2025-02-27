@@ -27,10 +27,10 @@ uint32_t get_baud_divider(uint32_t baudrate) {
 
 void dw8250_uart4_init(){
     // 时钟频率
-    uint32_t sclk = 24000000;
-    uint32_t uart_dlf_len = 6;
+    // uint32_t sclk = 24000000;
+    // uint32_t uart_dlf_len = 6;
     // 波特率
-    uint32_t baud_rate = 115200;
+    // uint32_t baud_rate = 115200;
 
     uint32_t divider = get_baud_divider(BAUDRATE);
     // 等待 USR_BUSY 位变为 0

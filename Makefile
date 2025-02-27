@@ -52,7 +52,7 @@ EXE_STEM = freertos-demo
 
 # 合并源文件目标
 # RUNTIME_OBJS = $(FREERTOS_RUNTIME_OBJS) $(FREERTOS_OBJS)
-OBJS = main.o boot_stub.o
+OBJS = main.o boot_stub.o serial.o
 
 RUNTIME_AR = libfreertos.a
 

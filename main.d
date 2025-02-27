@@ -1,1 +1,1 @@
-main.o: main.c
+main.o: main.c serial.h uart.h
