@@ -62,6 +62,7 @@ typedef void * sio_fd_t;
 
 void dw8250_uart4_init();
 void putchar(char c);
+void ns16550_uart_init();
 
 sio_fd_t serial_open(void);
 // void serial_irq_rx_enable(sio_fd_t fd);

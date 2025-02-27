@@ -25,6 +25,10 @@ uint32_t get_baud_divider(uint32_t baudrate) {
     return (UART_SRC_CLK << (BST_UART_DLF_LEN - 4)) / baudrate;
 }
 
+uint32_t ns16650_get_baud_divider(uint32_t baudrate) {
+    return (UART_SRC_CLK + (baudrate * 16)/2) / (baudrate * 16);
+}
+
 void dw8250_uart4_init(){
     // 时钟频率
     // uint32_t sclk = 24000000;
@@ -34,7 +38,7 @@ void dw8250_uart4_init(){
 
     uint32_t divider = get_baud_divider(BAUDRATE);
     // 等待 USR_BUSY 位变为 0
-    while ((mmio_read32(UART4_USR_ADDR(uart4.base)) & 0x1) != 0);
+    while ((mmio_read32(UART4_USR_ADDR(uart4.base)) & 0x1) != 0){};
     // 禁用中断
     mmio_write32(UART4_IER_DLH_ADDR(uart4.base), 0);
     // 启动 FIFO
@@ -62,6 +66,34 @@ void dw8250_uart4_init(){
     // 设置数据位长度为 8 位，无校验，1 停止位
     mmio_write32(UART4_LCR_ADDR(uart4.base), mmio_read32(UART4_LCR_ADDR(uart4.base)) | 0x3);
 }
+/*
+    /// ns16550 initialize for T-HEAD
+    pub fn ns16550_init(&mut self) {
+
+
+        self.regs().rbr.set(divider & 0xff);
+        self.regs().ier.set((divider >> 8) & 0xff);
+
+
+        self.regs().lcr.set(self.regs().lcr.get() & !0x80);
+    }
+    */
+
+void ns16550_uart_init(){
+	uint32_t divider = ns16650_get_baud_divider(BAUDRATE);
+    while ((mmio_read32(UART4_LSR_ADDR(uart4.base)) & 0x40) == 0){};
+	mmio_write32(UART4_IER_DLH_ADDR(uart4.base), 0);
+    mmio_write32(UART4_MCR_ADDR(uart4.base), 0x3);
+    mmio_write32(UART4_IIR_FCR_ADDR(uart4.base),0x7);
+    mmio_write32(UART4_LCR_ADDR(uart4.base), 0x3);
+    uint32_t lcr_val = mmio_read32(UART4_LCR_ADDR(uart4.base));
+    mmio_write32(UART4_LCR_ADDR(uart4.base), lcr_val | 0x80);
+	mmio_write32(UART4_RBR_THR_DLL_ADDR(uart4.base), divider & 0xFF);
+    mmio_write32(UART4_IER_DLH_ADDR(uart4.base), (divider >> 8) & 0xFF);
+    lcr_val = mmio_read32(UART4_LCR_ADDR(uart4.base));
+    mmio_write32(UART4_LCR_ADDR(uart4.base), lcr_val & !0x80);
+}
+
 
 void putchar(char c){
     while((mmio_read32(UART4_LSR_ADDR(uart4.base)) & 0x20)==0);
