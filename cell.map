@@ -43,17 +43,19 @@
                 0x0000000000004000                bss_end = .
                 0x0000000000004000                . = ALIGN (0x4)
 
-.text           0x0000000000004000      0x118
+.text           0x0000000000004000      0x1c0
  *(.vectors)
  *(.text)
  .text          0x0000000000004000       0x2c main.o
                 0x0000000000004000                inmate_main
  .text          0x000000000000402c        0x0 boot_stub.o
  *fill*         0x000000000000402c        0x4 
- .text          0x0000000000004030       0xe8 serial.o
+ .text          0x0000000000004030      0x190 serial.o
                 0x0000000000004030                get_baud_divider
-                0x0000000000004040                dw8250_uart4_init
-                0x00000000000040f0                putchar
+                0x0000000000004040                ns16650_get_baud_divider
+                0x0000000000004060                dw8250_uart4_init
+                0x0000000000004110                ns16550_uart_init
+                0x0000000000004194                putchar
  *(.text.*)
  *(.gnu.linkonce.t.*)
  *(.plt)
@@ -65,70 +67,70 @@
  *(.ARM.extab)
  *(.gnu.linkonce.armextab.*)
 
-.iplt           0x0000000000004118        0x0
- .iplt          0x0000000000004118        0x0 main.o
+.iplt           0x00000000000041c0        0x0
+ .iplt          0x00000000000041c0        0x0 main.o
 
-.rodata         0x0000000000004118        0x8
+.rodata         0x00000000000041c0        0x8
  *(.rodata)
- .rodata        0x0000000000004118        0x8 serial.o
-                0x0000000000004118                uart4
+ .rodata        0x00000000000041c0        0x8 serial.o
+                0x00000000000041c0                uart4
 
-.eh_frame       0x0000000000004120       0x6c
- .eh_frame      0x0000000000004120       0x30 main.o
- .eh_frame      0x0000000000004150       0x3c serial.o
-                                         0x50 (松开之前的大小)
+.eh_frame       0x00000000000041c8       0x94
+ .eh_frame      0x00000000000041c8       0x30 main.o
+ .eh_frame      0x00000000000041f8       0x64 serial.o
+                                         0x78 (松开之前的大小)
 
-.rela.dyn       0x0000000000004190        0x0
- .rela.iplt     0x0000000000004190        0x0 main.o
+.rela.dyn       0x0000000000004260        0x0
+ .rela.iplt     0x0000000000004260        0x0 main.o
 
-.rodata1        0x000000000000418c        0x0
-                0x000000000000418c                __rodata1_start = .
+.rodata1        0x000000000000425c        0x0
+                0x000000000000425c                __rodata1_start = .
  *(.rodata1)
  *(.rodata1.*)
-                0x000000000000418c                __rodata1_end = .
+                0x000000000000425c                __rodata1_end = .
 
-.data           0x000000000000418c        0x0
-                0x000000000000418c                __data_start = .
+.data           0x000000000000425c        0x0
+                0x000000000000425c                __data_start = .
  *(.data)
- .data          0x000000000000418c        0x0 main.o
- .data          0x000000000000418c        0x0 boot_stub.o
- .data          0x000000000000418c        0x0 serial.o
+ .data          0x000000000000425c        0x0 main.o
+ .data          0x000000000000425c        0x0 boot_stub.o
+ .data          0x000000000000425c        0x0 serial.o
  *(.data.*)
  *(.gnu.linkonce.d.*)
  *(.jcr)
  *(.got)
  *(.got.plt)
-                0x000000000000418c                __data_end = .
+                0x000000000000425c                __data_end = .
 
-.igot.plt       0x0000000000004190        0x0
- .igot.plt      0x0000000000004190        0x0 main.o
+.igot.plt       0x0000000000004260        0x0
+ .igot.plt      0x0000000000004260        0x0 main.o
 
-.sdata2         0x000000000000418c        0x0
-                0x000000000000418c                __sdata2_start = .
+.sdata2         0x000000000000425c        0x0
+                0x000000000000425c                __sdata2_start = .
  *(.sdata2)
  *(.sdata2.*)
  *(.gnu.linkonce.s2.*)
-                0x000000000000418c                __sdata2_end = .
+                0x000000000000425c                __sdata2_end = .
 
-.sbss2          0x000000000000418c        0x0
-                0x000000000000418c                __sbss2_start = .
+.sbss2          0x000000000000425c        0x0
+                0x000000000000425c                __sbss2_start = .
  *(.sbss2)
  *(.sbss2.*)
  *(.gnu.linkonce.sb2.*)
-                0x000000000000418c                __sbss2_end = .
+                0x000000000000425c                __sbss2_end = .
 LOAD main.o
 LOAD boot_stub.o
 LOAD serial.o
 OUTPUT(freertos-demo.elf elf64-littleaarch64)
 LOAD linker stubs
 
-.debug_info     0x0000000000000000      0x645
+.debug_info     0x0000000000000000      0x900
  .debug_info    0x0000000000000000      0x10b main.o
- .debug_info    0x000000000000010b      0x53a serial.o
+ .debug_info    0x000000000000010b      0x7f5 serial.o
 
-.debug_abbrev   0x0000000000000000      0x27a
+.debug_abbrev   0x0000000000000000      0x2a1
  .debug_abbrev  0x0000000000000000       0xb2 main.o
- .debug_abbrev  0x00000000000000b2      0x1c8 serial.o
+ .debug_abbrev  0x00000000000000b2      0x1ef serial.o
 
 .debug_aranges  0x0000000000000000       0x60
  .debug_aranges
@@ -144,15 +146,15 @@ LOAD linker stubs
  .debug_macro   0x00000000000024c0       0xf4 main.o
  .debug_macro   0x00000000000025b4       0x4e serial.o
 
-.debug_line     0x0000000000000000      0x2cd
+.debug_line     0x0000000000000000      0x628
  .debug_line    0x0000000000000000       0x8c main.o
- .debug_line    0x000000000000008c      0x241 serial.o
+ .debug_line    0x000000000000008c      0x59c serial.o
 
-.debug_str      0x0000000000000000     0xc137
+.debug_str      0x0000000000000000     0xc151
  .debug_str     0x0000000000000000     0xc09a main.o
                                        0xc1ec (松开之前的大小)
- .debug_str     0x000000000000c09a       0x9d serial.o
-                                       0xc11a (松开之前的大小)
+ .debug_str     0x000000000000c09a       0xb7 serial.o
+                                       0xc145 (松开之前的大小)
 
 .debug_line_str
                 0x0000000000000000       0x79
@@ -176,11 +178,11 @@ LOAD linker stubs
                 0x0000000000000000        0x0 serial.o
 
 .debug_loclists
-                0x0000000000000000      0x1b3
+                0x0000000000000000      0x2da
  .debug_loclists
-                0x0000000000000000      0x1b3 serial.o
+                0x0000000000000000      0x2da serial.o
 
 .debug_rnglists
-                0x0000000000000000       0x83
+                0x0000000000000000      0x102
  .debug_rnglists
-                0x0000000000000000       0x83 serial.o
+                0x0000000000000000      0x102 serial.o
