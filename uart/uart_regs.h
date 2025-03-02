@@ -125,51 +125,52 @@
 #define DW_RFIFO_FULL     0x10
 
 /* UART Register Structure Define */
-struct UART_REG {
-    union {
-        __I  uint32_t RBR;                                /* Address Offset: 0x0000 */
-        __IO uint32_t DLL;                                /* Address Offset: 0x0000 */
-        __O  uint32_t THR;                                /* Address Offset: 0x0000 */
-    };
-    union {
-        __IO uint32_t DLH;                                /* Address Offset: 0x0004 */
-        __IO uint32_t IER;                                /* Address Offset: 0x0004 */
-    };
-    union {
-        __O  uint32_t FCR;                                /* Address Offset: 0x0008 */
-        __I  uint32_t IIR;                                /* Address Offset: 0x0008 */
-    };
-    __IO uint32_t LCR;                                /* Address Offset: 0x000C */
-    __IO uint32_t MCR;                                /* Address Offset: 0x0010 */
-    __I  uint32_t LSR;                                /* Address Offset: 0x0014 */
-    __I  uint32_t MSR;                                /* Address Offset: 0x0018 */
-    __IO uint32_t SCR;                                /* Address Offset: 0x001C */
-         uint32_t RESERVED0020[4];                    /* Address Offset: 0x0020 */
-    union {
-        __I  uint32_t SRBR;                               /* Address Offset: 0x0030 */
-        __O  uint32_t STHR;                               /* Address Offset: 0x0030 */
-    };
-         uint32_t RESERVED0034[15];                   /* Address Offset: 0x0034 */
-    __IO uint32_t FAR;                                /* Address Offset: 0x0070 */
-    __I  uint32_t TFR;                                /* Address Offset: 0x0074 */
-    __O  uint32_t RFW;                                /* Address Offset: 0x0078 */
-    __I  uint32_t USR;                                /* Address Offset: 0x007C */
-    __I  uint32_t TFL;                                /* Address Offset: 0x0080 */
-    __I  uint32_t RFL;                                /* Address Offset: 0x0084 */
-    __O  uint32_t SRR;                                /* Address Offset: 0x0088 */
-    __IO uint32_t SRTS;                               /* Address Offset: 0x008C */
-    __IO uint32_t SBCR;                               /* Address Offset: 0x0090 */
-    __IO uint32_t SDMAM;                              /* Address Offset: 0x0094 */
-    __IO uint32_t SFE;                                /* Address Offset: 0x0098 */
-    __IO uint32_t SRT;                                /* Address Offset: 0x009C */
-    __IO uint32_t STET;                               /* Address Offset: 0x00A0 */
-    __IO uint32_t HTX;                                /* Address Offset: 0x00A4 */
-    __O  uint32_t DMASA;                              /* Address Offset: 0x00A8 */
-         uint32_t RESERVED00AC[18];                   /* Address Offset: 0x00AC */
-    __I  uint32_t CPR;                                /* Address Offset: 0x00F4 */
-    __I  uint32_t UCV;                                /* Address Offset: 0x00F8 */
-    __I  uint32_t CTR;                                /* Address Offset: 0x00FC */
-};
+//
+//struct UART_REG {
+//    union {
+//        __I  uint32_t RBR;                                /* Address Offset: 0x0000 */
+//        __IO uint32_t DLL;                                /* Address Offset: 0x0000 */
+//        __O  uint32_t THR;                                /* Address Offset: 0x0000 */
+//    };
+//    union {
+//        __IO uint32_t DLH;                                /* Address Offset: 0x0004 */
+//        __IO uint32_t IER;                                /* Address Offset: 0x0004 */
+//    };
+//    union {
+//        __O  uint32_t FCR;                                /* Address Offset: 0x0008 */
+//        __I  uint32_t IIR;                                /* Address Offset: 0x0008 */
+//    };
+//    __IO uint32_t LCR;                                /* Address Offset: 0x000C */
+//    __IO uint32_t MCR;                                /* Address Offset: 0x0010 */
+//    __I  uint32_t LSR;                                /* Address Offset: 0x0014 */
+//    __I  uint32_t MSR;                                /* Address Offset: 0x0018 */
+//    __IO uint32_t SCR;                                /* Address Offset: 0x001C */
+//         uint32_t RESERVED0020[4];                    /* Address Offset: 0x0020 */
+//    union {
+//        __I  uint32_t SRBR;                               /* Address Offset: 0x0030 */
+//        __O  uint32_t STHR;                               /* Address Offset: 0x0030 */
+//    };
+//         uint32_t RESERVED0034[15];                   /* Address Offset: 0x0034 */
+//    __IO uint32_t FAR;                                /* Address Offset: 0x0070 */
+//    __I  uint32_t TFR;                                /* Address Offset: 0x0074 */
+//    __O  uint32_t RFW;                                /* Address Offset: 0x0078 */
+//    __I  uint32_t USR;                                /* Address Offset: 0x007C */
+//    __I  uint32_t TFL;                                /* Address Offset: 0x0080 */
+//    __I  uint32_t RFL;                                /* Address Offset: 0x0084 */
+//    __O  uint32_t SRR;                                /* Address Offset: 0x0088 */
+//    __IO uint32_t SRTS;                               /* Address Offset: 0x008C */
+//    __IO uint32_t SBCR;                               /* Address Offset: 0x0090 */
+//    __IO uint32_t SDMAM;                              /* Address Offset: 0x0094 */
+//    __IO uint32_t SFE;                                /* Address Offset: 0x0098 */
+//    __IO uint32_t SRT;                                /* Address Offset: 0x009C */
+//    __IO uint32_t STET;                               /* Address Offset: 0x00A0 */
+//    __IO uint32_t HTX;                                /* Address Offset: 0x00A4 */
+//    __O  uint32_t DMASA;                              /* Address Offset: 0x00A8 */
+//         uint32_t RESERVED00AC[18];                   /* Address Offset: 0x00AC */
+//    __I  uint32_t CPR;                                /* Address Offset: 0x00F4 */
+//    __I  uint32_t UCV;                                /* Address Offset: 0x00F8 */
+//    __I  uint32_t CTR;                                /* Address Offset: 0x00FC */
+//};
 
 
 

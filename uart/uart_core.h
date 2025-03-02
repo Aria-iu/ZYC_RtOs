@@ -5,7 +5,7 @@
 #ifndef UART_CORE_H
 #define UART_CORE_H
 
-#include "types.h"
+#include "typedef.h"
 #include "uart_regs.h"
 
 #define MAX_UART_NUM          8

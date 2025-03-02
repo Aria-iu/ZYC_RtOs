@@ -24,7 +24,7 @@ ASMFLAGS += -ffreestanding -Wextra -Wfatal-errors -Werror -O2 -g3 -D__ASSEMBLY__
 #	3. /freertos-runtime
 #	4. /freertos/Source/portable/GCC/ARM_A7jailhouse
 # CFLAGS += -I $(src) -I $(src)/freertos/Source/include -I $(src)/freertos-runtime -I $(src)/freertos/Source/portable/GCC/ARM_A7jailhouse
-CFLAGS += -I $(src) -I $(src)/uart
+CFLAGS += -I $(src) -I $(src)/uart -Wno-unused-variable
 
 # 链接脚本
 LDFLAGS += -T lscript.lds -Map=cell.map -nostdlib
@@ -54,7 +54,7 @@ EXE_STEM = freertos-demo
 # RUNTIME_OBJS = $(FREERTOS_RUNTIME_OBJS) $(FREERTOS_OBJS)
 OBJS = main.o boot_stub.o uart/serial.o uart/uart_core.o uart/uart.o
 
-RUNTIME_AR = libfreertos.a
+RUNTIME_AR = # libfreertos.a
 
 all: $(EXE_STEM).bin
 

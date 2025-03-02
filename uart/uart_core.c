@@ -5,14 +5,6 @@
 #include "uart_core.h"
 #include "typedef.h"
 
-serial_cfg g_uart_cfg = {
-    // .name = "uart",
-    .data_bits = 8, /* default data_bits is 8 */
-    .stop = 1,
-    .pen = 0,
-    .baud_rate = 115200 /* default baud_rate is 115200 */
-};
-
 #define UART_REG_READ(addr)          (*(volatile U32 *)(((uintptr_t)addr)))
 #define UART_REG_WRITE(value, addr)  (*(volatile U32 *)((uintptr_t)addr) = (U32)value)
 
@@ -20,6 +12,7 @@ serial_cfg g_uart_cfg = {
 // 架空 uartno的作用，我们只关心 uart4
 static S32 uart_core_base_addr(S32 uartno, U32 *reg_base)
 {
+    volatile S32 temp = uartno;
     *reg_base = UART4_BASE;
     return OS_OK;
 }

@@ -4,6 +4,6 @@
 
 #ifndef UART_DEV_H
 #define UART_DEV_H
-#include "uart_reg.h"
+#include "uart_regs.h"
 
 #endif //UART_DEV_H

@@ -4,9 +4,12 @@
 
 #ifndef SERIAL_H
 #define SERIAL_H
-#include "types.h"
-#include "uart_reg.h"
+#include "typedef.h"
+#include "uart_regs.h"
 
+#define SERIAL_TIMEOUT_MS    10
+#define SERIAL_NAME_SIZE     32
+#define SERIAL_FLUSH_TMOUT    0x100000
 
 typedef struct _serial_cfg {
     // char name[SERIAL_NAME_SIZE];

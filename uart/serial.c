@@ -9,6 +9,7 @@
 
 serial_t g_sys_serial;
 
+#define HW_UART_NO (g_sys_serial.cfg.hw_uart_no)
 #define UART_CLK    (PERI_APB_FREQ)
 
 
