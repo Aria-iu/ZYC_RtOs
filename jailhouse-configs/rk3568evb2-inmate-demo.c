@@ -50,8 +50,15 @@ struct {
             .flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
                      JAILHOUSE_MEM_EXECUTE  | JAILHOUSE_MEM_LOADABLE,
         },
-	
-        //  UART0直通 (fe680000) 
+		//  UART2直通 (fe680000)
+        {
+            .phys_start = 0xfe660000,
+            .virt_start = 0xfe660000,
+            .size = 0x100,
+            .flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
+                     JAILHOUSE_MEM_IO | JAILHOUSE_MEM_ROOTSHARED,
+        },
+        //  UART4直通 (fe680000)
         {
             .phys_start = 0xfe680000,
             .virt_start = 0xfe680000,

@@ -60,16 +60,16 @@ void inmate_main(void)
 //		 serial_putc('Z');
 //		 serial_putc('Y');
 //		 serial_putc('C');
-//                TestPutc('t');
-//                TestPutc('h');
-//                TestPutc('i');
-//                TestPutc('s');
-//                TestPutc('i');
-//                TestPutc('s');
-//                TestPutc('t');
-//                TestPutc('e');
-//                TestPutc('s');
-//                TestPutc('t');
+                TestPutc('t');
+                TestPutc('h');
+                TestPutc('i');
+                TestPutc('s');
+                TestPutc('i');
+                TestPutc('s');
+                TestPutc('t');
+                TestPutc('e');
+                TestPutc('s');
+                TestPutc('t');
 	}
 }
 /* }}} */
