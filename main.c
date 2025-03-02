@@ -6,6 +6,7 @@
 #include "uart/serial.h"
 #include "uart/uart_core.h"
 #include "uart/uart_dev.h"
+#include "test.h"
 
 #define TIMER_IRQ 27
 #define BEATS_PER_SEC configTICK_RATE_HZ
@@ -59,6 +60,16 @@ void inmate_main(void)
 		serial_putc('Z');
 		serial_putc('Y');
 		serial_putc('C');
+                TestPutc('t');
+                TestPutc('h');
+                TestPutc('i');
+                TestPutc('s');
+                TestPutc('i');
+                TestPutc('s');
+                TestPutc('t');
+                TestPutc('e');
+                TestPutc('s');
+                TestPutc('t');
 	}
 }
 /* }}} */
