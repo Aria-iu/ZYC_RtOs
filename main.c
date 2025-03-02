@@ -57,19 +57,19 @@ void inmate_main(void)
   	prvSetupHardware();
 	serial_init(&g_uart_cfg, &g_uart_ops);
 	while(1){
-		// serial_putc('Z');
-		// serial_putc('Y');
-		// serial_putc('C');
-                TestPutc('t');
-                TestPutc('h');
-                TestPutc('i');
-                TestPutc('s');
-                TestPutc('i');
-                TestPutc('s');
-                TestPutc('t');
-                TestPutc('e');
-                TestPutc('s');
-                TestPutc('t');
+		 serial_putc('Z');
+		 serial_putc('Y');
+		 serial_putc('C');
+//                TestPutc('t');
+//                TestPutc('h');
+//                TestPutc('i');
+//                TestPutc('s');
+//                TestPutc('i');
+//                TestPutc('s');
+//                TestPutc('t');
+//                TestPutc('e');
+//                TestPutc('s');
+//                TestPutc('t');
 	}
 }
 /* }}} */
