@@ -3,7 +3,9 @@
 //
 
 #include <stdint.h>
-#include "serial.h"
+#include "uart/serial.h"
+#include "uart/uart_core.h"
+#include "uart/uart_dev.h"
 
 #define TIMER_IRQ 27
 #define BEATS_PER_SEC configTICK_RATE_HZ
@@ -51,15 +53,12 @@ static void prvSetupHardware(void)
 void inmate_main(void)
 {
   // unsigned i;
-
-  prvSetupHardware();
-
+  	prvSetupHardware();
+	serial_init(&g_uart_cfg, &g_uart_ops);
 	while(1){
-		ns16550_uart_init();
-		putchar('z');
-		putchar('y');
-		putchar('c');
-		ARM_SLEEP;
+		serial_putc('Z');
+		serial_putc('Y');
+		serial_putc('C');
 	}
 }
 /* }}} */
