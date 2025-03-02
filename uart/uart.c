@@ -103,7 +103,7 @@ S32 uart_init(serial_cfg *cfg)
     uart_set_lcr(cfg->hw_uart_no, calc_lcr_reg_val(cfg));
 
     /* enable rx irq */
-    uart_set_irq_enable(cfg->hw_uart_no, 1);
+    // uart_set_irq_enable(cfg->hw_uart_no, 1);
     return OS_OK;
 }
 
