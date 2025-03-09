@@ -47,7 +47,7 @@ static inline unsigned int hvc(unsigned int r0, unsigned int r1)
 	return __r0;
 }
 
-static int set_id_map(unsigned int i, unsigned long address, unsigned long size)
+static int set_id_map(int i, unsigned long address, unsigned long size)
 {
 	if (i >= ARRAY_SIZE(id_maps))
 		return -ENOMEM;
@@ -199,7 +199,7 @@ setup_mmu_el2(unsigned long phys_cpu_data, phys2virt_t phys2virt, u64 ttbr)
 		"bx	r0\n\t"
 		: : "r" (LOCAL_CPU_BASE - phys_cpu_data),
 		    "r" (phys2virt)
-		: "cc", "r0", "r1", "r2", "r3", "lr");
+		: "cc", "r0", "r1", "r2", "r3", "lr", "sp");
 }
 
 /*
@@ -330,7 +330,7 @@ int switch_exception_level(struct per_cpu *cpu_data)
 
 void __attribute__((noreturn)) arch_shutdown_mmu(struct per_cpu *cpu_data)
 {
-	static spinlock_t map_lock;
+	static DEFINE_SPINLOCK(map_lock);
 
 	virt2phys_t virt2phys = paging_hvirt2phys;
 	unsigned long stack_phys = virt2phys(cpu_data->stack);
@@ -368,7 +368,7 @@ void __attribute__((noreturn)) arch_shutdown_mmu(struct per_cpu *cpu_data)
 	__builtin_unreachable();
 }
 
-void arm_dcaches_flush(void *addr, unsigned long size, enum dcache_flush flush)
+void arm_dcaches_flush(void *addr, long size, enum dcache_flush flush)
 {
 	while (size > 0) {
 		/* clean / invalidate by MVA to PoC */

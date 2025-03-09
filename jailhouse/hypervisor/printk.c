@@ -1,7 +1,7 @@
 /*
  * Jailhouse, a Linux-based partitioning hypervisor
  *
- * Copyright (c) Siemens AG, 2013-2022
+ * Copyright (c) Siemens AG, 2013-2019
  *
  * Authors:
  *  Jan Kiszka <jan.kiszka@siemens.com>
@@ -10,18 +10,19 @@
  * the COPYING file in the top-level directory.
  */
 
+#include <stdarg.h>
 #include <jailhouse/control.h>
 #include <jailhouse/printk.h>
 #include <jailhouse/processor.h>
-#include <jailhouse/stdarg.h>
 #include <jailhouse/string.h>
+#include <asm/bitops.h>
 #include <asm/spinlock.h>
 
 bool virtual_console = false;
 volatile struct jailhouse_virt_console console
 	__attribute__((section(".console")));
 
-static spinlock_t printk_lock;
+static DEFINE_SPINLOCK(printk_lock);
 
 static void console_write(const char *msg)
 {
@@ -133,12 +134,11 @@ static char *hex2str(unsigned long long value, char *buf,
 	return buf;
 }
 
-static char *align(char *p1, char *p0, unsigned int width, char fill)
+static char *align(char *p1, char *p0, unsigned long width, char fill)
 {
 	unsigned int n;
 
-	/* Note: p1 > p0 here */
-	if ((unsigned int)(p1 - p0) >= width)
+	if (p1 - p0 >= width)
 		return p1;
 
 	for (n = 1; p1 - n >= p0; n++)
@@ -263,8 +263,7 @@ void panic_printk(const char *fmt, ...)
 	unsigned long cpu_id = phys_processor_id();
 	va_list ap;
 
-	if (atomic_test_and_set_bit(0, &panic_in_progress) &&
-	    panic_cpu != cpu_id)
+	if (test_and_set_bit(0, &panic_in_progress) && panic_cpu != cpu_id)
 		return;
 	panic_cpu = cpu_id;
 

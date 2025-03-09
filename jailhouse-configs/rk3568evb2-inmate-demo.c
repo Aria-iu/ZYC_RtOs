@@ -56,7 +56,7 @@ struct {
             .virt_start = 0xfe660000,
             .size = 0x100,
             .flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
-                     JAILHOUSE_MEM_IO | JAILHOUSE_MEM_IO_32,
+                     JAILHOUSE_MEM_IO | JAILHOUSE_MEM_ROOTSHARED,
         },
         //  UART4直通 (fe680000)
         {
@@ -66,25 +66,12 @@ struct {
             .flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
                      JAILHOUSE_MEM_IO | JAILHOUSE_MEM_ROOTSHARED,
         },
-	
-        /* GPIO控制器直通 
-        {
-            .phys_start = 0xfdd60000, // gpio0
-            .virt_start = 0xfdd60000,
-            .size = 0x100,
+        /* communication region */ {
+            .virt_start = 0x80000000,
+            .size = 0x00001000,
             .flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
-                     JAILHOUSE_MEM_IO,
+                JAILHOUSE_MEM_COMM_REGION,
         },
-	*/
-        /* GICD直通 
-        {
-            .phys_start = 0xfd400000,
-            .virt_start = 0xfd400000,
-            .size = 0x10000,
-            .flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
-                     JAILHOUSE_MEM_IO,
-        },
-        */
     },
 
     .irqchips = {

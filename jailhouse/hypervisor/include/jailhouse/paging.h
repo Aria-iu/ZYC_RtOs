@@ -13,6 +13,8 @@
 #ifndef _JAILHOUSE_PAGING_H
 #define _JAILHOUSE_PAGING_H
 
+#include <asm/paging.h>
+
 /**
  * @defgroup Paging Page Management Subsystem
  *
@@ -24,13 +26,6 @@
  * @{
  */
 
-/** Size of smallest page. */
-#define PAGE_SIZE		(1 << PAGE_SHIFT)
-/** Mask of bits selecting a page. */
-#define PAGE_MASK		~(PAGE_SIZE - 1)
-/** Mask of bits selecting an offset in a page. */
-#define PAGE_OFFS_MASK		(PAGE_SIZE - 1)
-
 /** Align address to page boundary (round up). */
 #define PAGE_ALIGN(s)		(((s) + PAGE_SIZE-1) & PAGE_MASK)
 /** Count number of pages for given size (round up). */
@@ -39,22 +34,11 @@
 /** Location of per-CPU data structure in hypervisor address space. */
 #define LOCAL_CPU_BASE		(TEMPORARY_MAPPING_BASE + \
 				 NUM_TEMPORARY_PAGES * PAGE_SIZE)
-/** @} */
-
-#include <asm/paging.h>
 
 #ifndef __ASSEMBLY__
 
 #include <jailhouse/entry.h>
 #include <jailhouse/types.h>
-
-/**
- * @ingroup Paging
- * @{
- */
-
-/** Global page pool */
-extern u8 __page_pool[];
 
 /** Page pool state. */
 struct page_pool {
@@ -64,7 +48,7 @@ struct page_pool {
 	unsigned long pages;
 	/** Number of currently used pages. */
 	unsigned long used_pages;
-	/** Base address for bitmap of used pages. */
+	/** Bitmap of used pages. */
 	unsigned long *used_bitmap;
 	/** Set @c PAGE_SCRUB_ON_FREE to zero-out pages on release. */
 	unsigned long flags;

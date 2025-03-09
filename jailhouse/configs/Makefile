@@ -10,33 +10,31 @@
 # the COPYING file in the top-level directory.
 #
 
-include $(ALWAYS_COMPAT_MK)
-
 -include $(GEN_CONFIG_MK)
 
 LINUXINCLUDE := -I$(src)/../hypervisor/arch/$(SRCARCH)/include \
 		-I$(src)/../hypervisor/include \
 		-I$(src)/../include
-KBUILD_CFLAGS := -Werror -Wall -Wextra -D__LINUX_COMPILER_TYPES_H
+KBUILD_CFLAGS := -Wextra -D__LINUX_COMPILER_TYPES_H
 
 ifneq ($(wildcard $(obj)/../include/jailhouse/config.h),)
 KBUILD_CFLAGS += -include $(obj)/../include/jailhouse/config.h
 endif
 
-OBJCOPYFLAGS := -O binary --remove-section=.note.gnu.property
+OBJCOPYFLAGS := -O binary
 
 CONFIGS = $(shell cd $(src); ls $(SRCARCH)/*.c)
 
-always-y := $(CONFIGS:.c=.cell)
+always := $(CONFIGS:.c=.cell)
 
 targets += $(CONFIGS:.c=.o) $(CONFIGS:.c=.cell)
 
 DTS = $(shell cd $(src); ls $(SRCARCH)/dts/*.dts 2>/dev/null)
-always-y += $(DTS:.dts=.dtb)
+always += $(DTS:.dts=.dtb)
 targets += $(DTS:.dts=.dtb)
 
 # prevent deleting intermediate files which would cause rebuilds
 .SECONDARY: $(addprefix $(obj)/,$(CONFIGS:.c=.o))
 
-$(obj)/%.cell: $(obj)/%.o FORCE
+$(obj)/%.cell: $(obj)/%.o
 	$(call if_changed,objcopy)

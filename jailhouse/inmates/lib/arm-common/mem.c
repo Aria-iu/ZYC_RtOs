@@ -56,7 +56,8 @@ void map_range(void *start, unsigned long size, enum map_type map_type)
 	while (size) {
 		pgd_index = PGD_INDEX(vaddr);
 		if (!(page_directory[pgd_index] & LONG_DESC_TABLE)) {
-			pmd = zalloc(PAGE_SIZE, PAGE_SIZE);
+			pmd = alloc(PAGE_SIZE, PAGE_SIZE);
+			memset(pmd, 0, PAGE_SIZE);
 			/* ensure the page table walker will see the zeroes */
 			synchronization_barrier();
 
@@ -119,5 +120,4 @@ void arch_mmu_enable(void)
 	/* This barrier ensures that the MMU is actually on */
 	instruction_barrier();
 	/* MMU is enabled from now on */
-    // 现在开启MMU，使用页表，页表是page_directory。
 }

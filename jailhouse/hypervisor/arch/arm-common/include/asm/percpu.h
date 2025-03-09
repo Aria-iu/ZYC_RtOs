@@ -16,8 +16,7 @@
 #define STACK_SIZE			PAGE_SIZE
 
 #define ARM_PERCPU_FIELDS						\
-	int smccc_feat_workaround_1;					\
-	int smccc_feat_workaround_2;
+	bool smccc_has_workaround_1;
 
 #define ARCH_PUBLIC_PERCPU_FIELDS					\
 	unsigned long mpidr;						\

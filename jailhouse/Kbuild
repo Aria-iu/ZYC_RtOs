@@ -11,9 +11,6 @@
 # the COPYING file in the top-level directory.
 #
 
-ALWAYS_COMPAT_MK := $(src)/scripts/always-compat.mk
-export ALWAYS_COMPAT_MK
-
 INC_CONFIG_H = $(src)/include/jailhouse/config.h
 export INC_CONFIG_H
 
@@ -46,17 +43,17 @@ $(GEN_VERSION_H): $(src)/Makefile FORCE
 
 quiet_cmd_gen_pci_defs = GEN     $@
 define cmd_gen_pci_defs
-	$(filter-out FORCE,$^) > $@
+	$^ $(src)/include/jailhouse/pci_defs.h > $@
 endef
 
 GEN_PCI_DEFS_PY := $(obj)/pyjailhouse/pci_defs.py
 
-$(GEN_PCI_DEFS_PY): $(src)/scripts/gen_pci_defs.sh $(src)/include/jailhouse/pci_defs.h FORCE
+$(GEN_PCI_DEFS_PY): $(src)/scripts/gen_pci_defs.sh
 	$(call if_changed,gen_pci_defs)
 
-targets += pyjailhouse/pci_defs.py
-
 subdir-y := hypervisor configs inmates tools
+
+subdir-ccflags-y := -Werror
 
 obj-m := driver/
 
@@ -73,11 +70,5 @@ endif
 
 clean-files := pyjailhouse/*.pyc pyjailhouse/pci_defs.py
 
-CLEAN_DIRS := Documentation/generated hypervisor/include/generated \
+clean-dirs := Documentation/generated hypervisor/include/generated \
 	      pyjailhouse/__pycache__
-
-ifeq ($(shell test $(VERSION) -ge 5 && test $(PATCHLEVEL) -ge 4 && echo 1),1)
-clean-files += $(CLEAN_DIRS)
-else
-clean-dirs += $(CLEAN_DIRS)
-endif

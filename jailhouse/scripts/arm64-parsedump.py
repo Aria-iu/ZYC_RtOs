@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 # Jailhouse, a Linux-based partitioning hypervisor
 #
@@ -14,6 +14,7 @@
 # the COPYING file in the top-level directory.
 
 
+from __future__ import print_function
 import subprocess
 import sys
 import fileinput

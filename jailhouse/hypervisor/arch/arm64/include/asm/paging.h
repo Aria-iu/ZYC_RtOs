@@ -31,6 +31,9 @@
  */
 
 #define PAGE_SHIFT		12
+#define PAGE_SIZE		(1 << PAGE_SHIFT)
+#define PAGE_MASK		~(PAGE_SIZE - 1)
+#define PAGE_OFFS_MASK		(PAGE_SIZE - 1)
 
 #define MAX_PAGE_TABLE_LEVELS	4
 
@@ -101,6 +104,11 @@
 #define SL0_L0			2
 #define SL0_L1			1
 #define SL0_L2			0
+#define PARANGE_32B		0x0
+#define PARANGE_36B		0x1
+#define PARANGE_40B		0x2
+#define PARANGE_42B		0x3
+#define PARANGE_44B		0x4
 #define PARANGE_48B		0x5
 #define TCR_RGN_NON_CACHEABLE	0x0
 #define TCR_RGN_WB_WA		0x1
@@ -144,9 +152,6 @@
 				| S1_PTE_FLAG_NORMAL | PTE_INNER_SHAREABLE\
 				| S1_PTE_ACCESS_EL0)
 
-/* Memory Model Feature Register 0 */
-#define ID_AA64MMFR0_PARANGE_SHIFT	0
-
 /* Macros used by the core, only for the EL2 stage-1 mappings */
 #define PAGE_FLAG_FRAMEBUFFER	S1_PTE_FLAG_DEVICE
 #define PAGE_FLAG_DEVICE	S1_PTE_FLAG_DEVICE
@@ -175,7 +180,7 @@ struct paging_structures;
 
 typedef u64 *pt_entry_t;
 
-extern unsigned int cpu_parange, cpu_parange_encoded;
+extern unsigned int cpu_parange;
 
 unsigned int get_cpu_parange(void);
 
@@ -191,11 +196,23 @@ unsigned int get_cpu_parange(void);
 	   ret; })
 
 /* Just match the host's PARange */
+#define TCR_PS_CELL					\
+	({ unsigned int ret = 0;			\
+	   switch (cpu_parange) {			\
+		case 32: ret = PARANGE_32B; break;	\
+		case 36: ret = PARANGE_36B; break;	\
+		case 40: ret = PARANGE_40B; break;	\
+		case 42: ret = PARANGE_42B; break;	\
+		case 44: ret = PARANGE_44B; break;	\
+		case 48: ret = PARANGE_48B; break;	\
+	   }						\
+	   ret; })
+
 #define VTCR_CELL		(T0SZ_CELL | (SL0_CELL << TCR_SL0_SHIFT)\
 				| (TCR_RGN_WB_WA << TCR_IRGN0_SHIFT)	\
 				| (TCR_RGN_WB_WA << TCR_ORGN0_SHIFT)	\
 				| (TCR_INNER_SHAREABLE << TCR_SH0_SHIFT)\
-				| (cpu_parange_encoded << TCR_PS_SHIFT)	\
+				| (TCR_PS_CELL << TCR_PS_SHIFT)		\
 				| VTCR_RES1)
 
 int arm_paging_cell_init(struct cell *cell);

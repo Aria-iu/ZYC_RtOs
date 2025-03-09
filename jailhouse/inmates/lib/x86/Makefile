@@ -38,7 +38,7 @@
 
 include $(INMATES_LIB)/Makefile.lib
 
-always-y := lib.a lib32.a
+always := lib.a lib32.a
 
 TARGETS := cpu-features.o excp.o header-common.o irq.o ioapic.o printk.o
 TARGETS += setup.o uart.o
@@ -51,9 +51,9 @@ lib-y := $(TARGETS) $(TARGETS_64_ONLY)
 lib32-y := $(TARGETS:.o=-32.o) $(TARGETS_32_ONLY)
 
 quiet_cmd_link_archive32 = AR      $@
-cmd_link_archive32 = rm -f $@; $(AR) rcs$(KBUILD_ARFLAGS) $@ $(filter-out FORCE,$^)
+cmd_link_archive32 = rm -f $@; $(AR) rcs$(KBUILD_ARFLAGS) $@ $^
 
-$(obj)/lib32.a: $(addprefix $(obj)/,$(lib32-y)) FORCE
+$(obj)/lib32.a: $(addprefix $(obj)/,$(lib32-y))
 	$(call if_changed,link_archive32)
 
 targets += $(lib32-y)

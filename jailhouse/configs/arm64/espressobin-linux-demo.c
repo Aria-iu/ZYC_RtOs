@@ -26,7 +26,6 @@ struct {
 	.cell = {
 		.signature = JAILHOUSE_CELL_DESC_SIGNATURE,
 		.revision = JAILHOUSE_CONFIG_REVISION,
-		.architecture = JAILHOUSE_ARM64,
 		.name = "ESPRESSObin-linux-demo",
 		.flags = JAILHOUSE_CELL_PASSIVE_COMMREG,
 
@@ -90,7 +89,7 @@ struct {
 				(1 << (43 - 32)) | (1 << (44 - 32)) | (1 << (45 - 32)),
 				0,
 				0,
-				(1 << (141 - 128))
+				(1 << (140 - 128))
 			},
 		},
 	},

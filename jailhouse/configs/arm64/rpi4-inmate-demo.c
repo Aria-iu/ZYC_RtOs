@@ -26,7 +26,6 @@ struct {
 	.cell = {
 		.signature = JAILHOUSE_CELL_DESC_SIGNATURE,
 		.revision = JAILHOUSE_CONFIG_REVISION,
-		.architecture = JAILHOUSE_ARM64,
 		.name = "inmate-demo",
 		.flags = JAILHOUSE_CELL_PASSIVE_COMMREG,
 
@@ -52,34 +51,34 @@ struct {
 	.mem_regions = {
 		/* IVSHMEM shared memory regions (demo) */
 		{
-			.phys_start = 0x1faf0000,
-			.virt_start = 0x1faf0000,
+			.phys_start = 0x3faf0000,
+			.virt_start = 0x3faf0000,
 			.size = 0x1000,
 			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_ROOTSHARED,
 		},
 		{
-			.phys_start = 0x1faf1000,
-			.virt_start = 0x1faf1000,
+			.phys_start = 0x3faf1000,
+			.virt_start = 0x3faf1000,
 			.size = 0x9000,
 			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
 				JAILHOUSE_MEM_ROOTSHARED,
 		},
 		{
-			.phys_start = 0x1fafa000,
-			.virt_start = 0x1fafa000,
+			.phys_start = 0x3fafa000,
+			.virt_start = 0x3fafa000,
 			.size = 0x2000,
 			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_ROOTSHARED,
 		},
 		{
-			.phys_start = 0x1fafc000,
-			.virt_start = 0x1fafc000,
+			.phys_start = 0x3fafc000,
+			.virt_start = 0x3fafc000,
 			.size = 0x2000,
 			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
 				JAILHOUSE_MEM_ROOTSHARED,
 		},
 		{
-			.phys_start = 0x1fafe000,
-			.virt_start = 0x1fafe000,
+			.phys_start = 0x3fafe000,
+			.virt_start = 0x3fafe000,
 			.size = 0x2000,
 			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_ROOTSHARED,
 		},
@@ -92,7 +91,7 @@ struct {
 				JAILHOUSE_MEM_IO_32 | JAILHOUSE_MEM_ROOTSHARED,
 		},
 		/* RAM */ {
-			.phys_start = 0x1fa00000,
+			.phys_start = 0x3fa00000,
 			.virt_start = 0,
 			.size = 0x00010000,
 			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |

@@ -32,9 +32,6 @@
 #define X86_FEATURE_INVPCID				(1 << 10)
 #define X86_FEATURE_CAT					(1 << 15)
 
-/* leaf 0x07, subleaf 0, ECX */
-#define X86_FEATURE_WAITPKG				(1 << 5)
-
 /* leaf 0x0d, subleaf 1, EAX */
 #define X86_FEATURE_XSAVES				(1 << 3)
 
@@ -166,8 +163,6 @@
 #define NMI_VECTOR					2
 #define PF_VECTOR					14
 #define AC_VECTOR					17
-
-#define EXCEPTION_NO_ERROR				0xffffffffffffffff
 
 #define DESC_TSS_BUSY					(1UL << (9 + 32))
 #define DESC_PRESENT					(1UL << (15 + 32))

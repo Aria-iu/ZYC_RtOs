@@ -14,15 +14,9 @@
 #define _JAILHOUSE_ASM_PROCESSOR_H
 
 #include <jailhouse/types.h>
-
-/* also include from arm-common */
-#include_next <asm/processor.h>
+#include <jailhouse/utils.h>
 
 #define NUM_USR_REGS		31
-
-#define ARM_PARKING_CODE		\
-	0xd503207f, /* 1: wfi  */	\
-	0x17ffffff, /*    b 1b */
 
 #ifndef __ASSEMBLY__
 
@@ -37,6 +31,29 @@ union registers {
 		unsigned long usr[NUM_USR_REGS];
 	};
 };
+
+#define ARM_PARKING_CODE		\
+	0xd503207f, /* 1: wfi  */	\
+	0x17ffffff, /*    b 1b */
+
+#define dmb(domain)	asm volatile("dmb " #domain "\n" : : : "memory")
+#define dsb(domain)	asm volatile("dsb " #domain "\n" : : : "memory")
+#define isb()		asm volatile("isb\n")
+
+static inline void cpu_relax(void)
+{
+	asm volatile("" : : : "memory");
+}
+
+static inline void memory_barrier(void)
+{
+	dmb(ish);
+}
+
+static inline void memory_load_barrier(void)
+{
+	dmb(ish);
+}
 
 #endif /* !__ASSEMBLY__ */
 

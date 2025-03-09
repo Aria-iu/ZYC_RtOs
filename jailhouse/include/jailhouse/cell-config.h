@@ -47,25 +47,15 @@
 #endif
 
 /*
- * Supported architectures of Jailhouse. Used in the header of system and cell
- * configurations, as well as in python tooling for automatic architecture
- * detection.
- */
-#define JAILHOUSE_X86		0
-#define JAILHOUSE_ARM		1
-#define JAILHOUSE_ARM64		2
-
-/*
  * Incremented on any layout or semantic change of system or cell config.
- * Also update formats and HEADER_REVISION in pyjailhouse/config_parser.py.
+ * Also update HEADER_REVISION in tools.
  */
-#define JAILHOUSE_CONFIG_REVISION	14
+#define JAILHOUSE_CONFIG_REVISION	12
 
 #define JAILHOUSE_CELL_NAME_MAXLEN	31
 
 #define JAILHOUSE_CELL_PASSIVE_COMMREG	0x00000001
 #define JAILHOUSE_CELL_TEST_DEVICE	0x00000002
-#define JAILHOUSE_CELL_AARCH32		0x00000004
 
 /*
  * The flag JAILHOUSE_CELL_VIRTUAL_CONSOLE_PERMITTED allows inmates to invoke
@@ -82,7 +72,7 @@
 #define CELL_FLAGS_VIRTUAL_CONSOLE_PERMITTED(flags) \
 	!!((flags) & JAILHOUSE_CELL_VIRTUAL_CONSOLE_PERMITTED)
 
-#define JAILHOUSE_CELL_DESC_SIGNATURE	"JHCLL"
+#define JAILHOUSE_CELL_DESC_SIGNATURE	"JHCELL"
 
 /**
  * The jailhouse cell configuration.
@@ -91,8 +81,7 @@
  * structure.
  */
 struct jailhouse_cell_desc {
-	char signature[5];
-	__u8 architecture;
+	char signature[6];
 	__u16 revision;
 
 	char name[JAILHOUSE_CELL_NAME_MAXLEN+1];
@@ -233,19 +222,7 @@ struct jailhouse_pci_device {
 
 #define JAILHOUSE_IVSHMEM_BAR_MASK_MSIX			\
 	{						\
-		0xfffff000, 0xfffff000, 0x00000000,	\
-		0x00000000, 0x00000000, 0x00000000,	\
-	}
-
-#define JAILHOUSE_IVSHMEM_BAR_MASK_INTX_64K		\
-	{						\
-		0xffff0000, 0x00000000, 0x00000000,	\
-		0x00000000, 0x00000000, 0x00000000,	\
-	}
-
-#define JAILHOUSE_IVSHMEM_BAR_MASK_MSIX_64K		\
-	{						\
-		0xffff0000, 0xffff0000, 0x00000000,	\
+		0xfffff000, 0xfffffe00, 0x00000000,	\
 		0x00000000, 0x00000000, 0x00000000,	\
 	}
 
@@ -270,7 +247,6 @@ struct jailhouse_pci_capability {
 #define JAILHOUSE_IOMMU_INTEL		2
 #define JAILHOUSE_IOMMU_SMMUV3		3
 #define JAILHOUSE_IOMMU_PVU		4
-#define JAILHOUSE_IOMMU_ARM_MMU500	5
 
 struct jailhouse_iommu {
 	__u32 type;
@@ -292,18 +268,6 @@ struct jailhouse_iommu {
 	};
 } __attribute__((packed));
 
-union jailhouse_stream_id {
-	__u32 id;
-	struct {
-		/* Note: both mask_out and id are only 15 bits wide. */
-		__u16 id;
-		/* Mask out irrelevant bits in id:
-		 * if mask_out[i] == 1, then id[i] is ignored.
-		 */
-		__u16 mask_out;
-	} __attribute__((packed)) mmu500;
-} __attribute__((packed));
-
 struct jailhouse_pio {
 	__u16 base;
 	__u16 length;
@@ -315,7 +279,7 @@ struct jailhouse_pio {
 		.length = __length,	\
 	}
 
-#define JAILHOUSE_SYSTEM_SIGNATURE	"JHSYS"
+#define JAILHOUSE_SYSTEM_SIGNATURE	"JHSYST"
 
 /*
  * The flag JAILHOUSE_SYS_VIRTUAL_DEBUG_CONSOLE allows the root cell to read
@@ -330,10 +294,8 @@ struct jailhouse_pio {
  * General descriptor of the system.
  */
 struct jailhouse_system {
-	char signature[5];
-	__u8 architecture;
+	char signature[6];
 	__u16 revision;
-
 	__u32 flags;
 
 	/** Jailhouse's location in memory */
@@ -344,25 +306,27 @@ struct jailhouse_system {
 		__u8 pci_mmconfig_end_bus;
 		__u8 pci_is_virtual;
 		__u16 pci_domain;
-		struct jailhouse_iommu iommu_units[JAILHOUSE_MAX_IOMMU_UNITS];
 		union {
 			struct {
 				__u16 pm_timer_address;
-				__u8 apic_mode;
-				__u8 padding;
 				__u32 vtd_interrupt_limit;
+				__u8 apic_mode;
+				__u8 padding[3];
 				__u32 tsc_khz;
 				__u32 apic_khz;
+				struct jailhouse_iommu
+					iommu_units[JAILHOUSE_MAX_IOMMU_UNITS];
 			} __attribute__((packed)) x86;
 			struct {
 				u8 maintenance_irq;
 				u8 gic_version;
-				u8 padding[2];
 				u64 gicd_base;
 				u64 gicc_base;
 				u64 gich_base;
 				u64 gicv_base;
 				u64 gicr_base;
+				struct jailhouse_iommu
+					iommu_units[JAILHOUSE_MAX_IOMMU_UNITS];
 			} __attribute__((packed)) arm;
 		} __attribute__((packed));
 	} __attribute__((packed)) platform_info;
@@ -444,11 +408,10 @@ jailhouse_cell_pci_caps(const struct jailhouse_cell_desc *cell)
 		 cell->num_pci_devices * sizeof(struct jailhouse_pci_device));
 }
 
-static inline const union jailhouse_stream_id *
+static inline const __u32 *
 jailhouse_cell_stream_ids(const struct jailhouse_cell_desc *cell)
 {
-	return (const union jailhouse_stream_id *)
-		((void *)jailhouse_cell_pci_caps(cell) +
+	return (const __u32 *)((void *)jailhouse_cell_pci_caps(cell) +
 		cell->num_pci_caps * sizeof(struct jailhouse_pci_capability));
 }
 

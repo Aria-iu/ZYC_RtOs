@@ -27,7 +27,6 @@ struct {
 	.header = {
 		.signature = JAILHOUSE_SYSTEM_SIGNATURE,
 		.revision = JAILHOUSE_CONFIG_REVISION,
-		.architecture = JAILHOUSE_ARM64,
 		.flags = JAILHOUSE_SYS_VIRTUAL_DEBUG_CONSOLE,
 		.hypervisor_memory = {
 			.phys_start = 0x7fc00000,
@@ -41,7 +40,7 @@ struct {
 				  JAILHOUSE_CON_REGDIST_4,
 		},
 		.platform_info = {
-			.pci_mmconfig_base = 0x08e00000,
+			.pci_mmconfig_base = 0x07000000,
 			.pci_mmconfig_end_bus = 0,
 			.pci_is_virtual = 1,
 			.pci_domain = 1,

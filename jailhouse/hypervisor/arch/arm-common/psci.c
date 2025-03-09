@@ -27,7 +27,7 @@ static long psci_emulate_cpu_on(struct trap_context *ctx)
 	long result;
 
 	cpu = arm_cpu_by_mpidr(this_cell(), ctx->regs[1] & mask);
-	if (cpu == INVALID_CPU_ID)
+	if (cpu == -1)
 		/* Virtual id not in set */
 		return PSCI_DENIED;
 
@@ -46,15 +46,10 @@ static long psci_emulate_cpu_on(struct trap_context *ctx)
 		result = PSCI_ALREADY_ON;
 	}
 
-	/*
-	 * The unlock has memory barrier semantic on ARM v7 and v8. Therefore
-	 * the changes to target_data will be visible when sending the kick
-	 * below.
-	 */
 	spin_unlock(&target_data->control_lock);
 
 	if (kick_cpu)
-		arch_send_event(target_data);
+		arm_cpu_kick(cpu);
 
 	return result;
 }
@@ -63,7 +58,7 @@ static long psci_emulate_affinity_info(struct trap_context *ctx)
 {
 	unsigned int cpu = arm_cpu_by_mpidr(this_cell(), ctx->regs[1]);
 
-	if (cpu == INVALID_CPU_ID)
+	if (cpu == -1)
 		/* Virtual id not in set */
 		return PSCI_DENIED;
 
@@ -101,23 +96,16 @@ long psci_dispatch(struct trap_context *ctx)
 
 	case PSCI_0_2_FN_CPU_SUSPEND:
 	case PSCI_0_2_FN64_CPU_SUSPEND:
-		/*
-		 * Note: We ignore the power_state parameter and always perform
-		 * a context-preserving suspend. This is legal according to
-		 * PSCI.
-		 */
-		if (sdei_available) {
-			arm_cpu_passthru_suspend();
-		} else if (!irqchip_has_pending_irqs()) {
+		if (!irqchip_has_pending_irqs()) {
 			asm volatile("wfi" : : : "memory");
 			irqchip_handle_irq();
 		}
-		return PSCI_SUCCESS;
+		return 0;
 
 	case PSCI_0_2_FN_CPU_OFF:
 	case PSCI_CPU_OFF_V0_1_UBOOT:
 		arm_cpu_park();
-		return 0; /* never returned to the PSCI caller */
+		return 0;
 
 	case PSCI_0_2_FN_CPU_ON:
 	case PSCI_0_2_FN64_CPU_ON:

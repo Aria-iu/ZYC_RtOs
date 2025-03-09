@@ -11,7 +11,7 @@
  * This work is licensed under the terms of the GNU GPL, version 2.  See
  * the COPYING file in the top-level directory.
  *
- * Reservation 0x30000000..0x3fffffff via cmdline: mem=768M
+ * Reservation via device tree: 0x800000000..0x83fffffff
  */
 
 #include <jailhouse/types.h>
@@ -27,7 +27,6 @@ struct {
 	.header = {
 		.signature = JAILHOUSE_SYSTEM_SIGNATURE,
 		.revision = JAILHOUSE_CONFIG_REVISION,
-		.architecture = JAILHOUSE_ARM64,
 		.flags = JAILHOUSE_SYS_VIRTUAL_DEBUG_CONSOLE,
 		.hypervisor_memory = {
 			.phys_start = 0x3fc00000,

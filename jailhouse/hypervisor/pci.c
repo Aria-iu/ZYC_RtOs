@@ -24,8 +24,7 @@
 
 #define for_each_configured_pci_device(dev, cell)			\
 	for ((dev) = (cell)->pci_devices;				\
-	     (u32)((dev) - (cell)->pci_devices) <			\
-				(cell)->config->num_pci_devices;	\
+	     (dev) - (cell)->pci_devices < (cell)->config->num_pci_devices; \
 	     (dev)++)
 
 #define for_each_pci_cap(cap, dev, counter)				\
@@ -435,7 +434,7 @@ static enum mmio_result pci_mmconfig_access_handler(void *arg,
 
 invalid_access:
 	panic_printk("FATAL: Invalid PCI MMCONFIG write, device %02x:%02x.%x, "
-		     "reg: 0x%x, size: %d\n", PCI_BDF_PARAMS(bdf), reg_addr,
+		     "reg: %x, size: %d\n", PCI_BDF_PARAMS(bdf), reg_addr,
 		     mmio->size);
 	return MMIO_ERROR;
 

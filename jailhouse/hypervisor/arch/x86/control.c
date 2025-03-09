@@ -77,6 +77,9 @@ void arch_flush_cell_vcpu_caches(struct cell *cell)
 			vcpu_tlb_flush();
 		} else {
 			public_per_cpu(cpu)->flush_vcpu_caches = true;
+			/* make sure the value is written before we kick
+			 * the remote core */
+			memory_barrier();
 			apic_send_nmi_ipi(public_per_cpu(cpu));
 		}
 }
@@ -238,7 +241,7 @@ x86_exception_handler(struct exception_frame *frame)
 {
 	panic_printk("FATAL: Jailhouse triggered exception #%lld\n",
 		     frame->vector);
-	if (frame->error != EXCEPTION_NO_ERROR)
+	if (frame->error != -1)
 		panic_printk("Error code: %llx\n", frame->error);
 	panic_printk("Physical CPU ID: %lu\n", phys_processor_id());
 	panic_printk("RIP: 0x%016llx RSP: 0x%016llx FLAGS: %llx\n", frame->rip,

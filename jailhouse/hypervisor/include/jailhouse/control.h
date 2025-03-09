@@ -10,15 +10,13 @@
  * the COPYING file in the top-level directory.
  */
 
-#include <jailhouse/bitops.h>
+#include <asm/bitops.h>
 #include <jailhouse/percpu.h>
 #include <jailhouse/cell.h>
 #include <jailhouse/cell-config.h>
 
 #define SHUTDOWN_NONE			0
 #define SHUTDOWN_STARTED		1
-
-#define INVALID_CPU_ID			~(0U)
 
 extern volatile unsigned long panic_in_progress;
 extern unsigned long panic_cpu;
@@ -36,7 +34,7 @@ extern unsigned long panic_cpu;
 extern struct jailhouse_system *system_config;
 
 unsigned int next_cpu(unsigned int cpu, struct cpu_set *cpu_set,
-		      unsigned int exception);
+		      int exception);
 
 /**
  * Get the first CPU in a given set.
@@ -44,7 +42,7 @@ unsigned int next_cpu(unsigned int cpu, struct cpu_set *cpu_set,
  *
  * @return First CPU in set, or max_cpu_id + 1 if the set is empty.
  */
-#define first_cpu(set)		next_cpu(INVALID_CPU_ID, (set), INVALID_CPU_ID)
+#define first_cpu(set)		next_cpu(-1, (set), -1)
 
 /**
  * Loop-generating macro for iterating over all CPUs in a set.
@@ -174,21 +172,6 @@ void arch_reset_cpu(unsigned int cpu_id);
  * @see suspend_cpu
  */
 void arch_park_cpu(unsigned int cpu_id);
-
-/**
- * Send internal event to remote CPU.
- * @param cpu_id	ID of the target CPU.
- *
- * When the state of the target CPU was updated and action is required on the
- * remote side, this function can be called. Processing of the state change is
- * architecture specific.
- *
- * The caller of this function is required to have performed the state changes
- * under a spinlock and called spin_unlock prior to this. The implementation of
- * arch_send_event() has to account for the case when spin_unlock does not
- * imply a memory barrier and issue this explicitly.
- */
-void arch_send_event(struct public_per_cpu *target_data);
 
 /**
  * Performs the architecture-specific steps for mapping a memory region into a

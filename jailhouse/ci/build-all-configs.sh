@@ -15,6 +15,11 @@ set -e
 
 CONFIGS="x86 banana-pi amd-seattle"
 
+# only build a specific config if the branch selects it
+if [ ${TRAVIS_BRANCH#coverity_scan-} != ${TRAVIS_BRANCH} ]; then
+	CONFIGS=${TRAVIS_BRANCH#coverity_scan-}
+fi
+
 PREFIX=
 if [ "$1" == "--cov" ]; then
 	export COVERITY_UNSUPPORTED=1
@@ -25,7 +30,7 @@ for CONFIG in $CONFIGS; do
 	echo
 	echo "*** Building configuration $CONFIG ***"
 
-	cp ci/jailhouse-config.h include/jailhouse/config.h
+	cp ci/jailhouse-config-$CONFIG.h include/jailhouse/config.h
 
 	case $CONFIG in
 	x86)

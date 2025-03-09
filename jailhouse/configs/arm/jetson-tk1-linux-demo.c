@@ -26,7 +26,6 @@ struct {
 	.cell = {
 		.signature = JAILHOUSE_CELL_DESC_SIGNATURE,
 		.revision = JAILHOUSE_CONFIG_REVISION,
-		.architecture = JAILHOUSE_ARM,
 		.name = "jetson-tk1-linux-demo",
 		.flags = JAILHOUSE_CELL_PASSIVE_COMMREG |
 			 JAILHOUSE_CELL_VIRTUAL_CONSOLE_PERMITTED,
@@ -100,7 +99,7 @@ struct {
 			.address = 0x50041000,
 			.pin_base = 160,
 			.pin_bitmap = {
-				1 << (153+32 - 160),
+				1 << (152+32 - 160),
 			},
 		},
 	},

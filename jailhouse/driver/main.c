@@ -42,7 +42,6 @@
 #endif
 #ifdef CONFIG_X86
 #include <asm/msr.h>
-#include <asm/apic.h>
 #endif
 
 #include "cell.h"
@@ -57,12 +56,6 @@
 
 #ifdef CONFIG_X86_32
 #error 64-bit kernel required!
-#endif
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
-#define MSR_IA32_FEAT_CTL			MSR_IA32_FEATURE_CONTROL
-#define FEAT_CTL_VMX_ENABLED_OUTSIDE_SMX \
-	FEATURE_CONTROL_VMXON_ENABLED_OUTSIDE_SMX
 #endif
 
 #if JAILHOUSE_CELL_ID_NAMELEN != JAILHOUSE_CELL_NAME_MAXLEN
@@ -86,7 +79,7 @@ MODULE_FIRMWARE(JAILHOUSE_FW_NAME);
 #endif
 MODULE_VERSION(JAILHOUSE_VERSION);
 
-extern char __hyp_stub_vectors[];
+extern unsigned int __hyp_stub_vectors[];
 
 struct console_state {
 	unsigned int head;
@@ -200,12 +193,6 @@ static long get_max_cpus(u32 cpu_set_size,
 	return -EINVAL;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,8,0)
-#define __get_vm_area(size, flags, start, end)			\
-	__get_vm_area_caller(size, flags, start, end,		\
-			     __builtin_return_address(0))
-#endif
-
 void *jailhouse_ioremap(phys_addr_t phys, unsigned long virt,
 			unsigned long size)
 {
@@ -257,13 +244,7 @@ static void enter_hypervisor(void *info)
 
 #if defined(CONFIG_X86) && LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
 	/* on Intel, VMXE is now on - update the shadow */
-	if (boot_cpu_has(X86_FEATURE_VMX) && !err) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,5,0)
-		cr4_set_bits_irqsoff(X86_CR4_VMXE);
-#else
-		cr4_set_bits(X86_CR4_VMXE);
-#endif
-	}
+	cr4_init_shadow();
 #endif
 
 	atomic_inc(&call_done);
@@ -396,10 +377,6 @@ static int jailhouse_cmd_enable(struct jailhouse_system __user *arg)
 		pr_err("jailhouse: Configuration revision mismatch\n");
 		return -EINVAL;
 	}
-	if (config_header.architecture != JAILHOUSE_ARCHITECTURE) {
-		pr_err("jailhouse: Configuration architecture mismatch\n");
-		return -EINVAL;
-	}
 
 	config_header.root_cell.name[JAILHOUSE_CELL_NAME_MAXLEN] = 0;
 
@@ -429,8 +406,9 @@ static int jailhouse_cmd_enable(struct jailhouse_system __user *arg)
 	if (boot_cpu_has(X86_FEATURE_VMX)) {
 		u64 features;
 
-		rdmsrl(MSR_IA32_FEAT_CTL, features);
-		if ((features & FEAT_CTL_VMX_ENABLED_OUTSIDE_SMX) == 0) {
+		rdmsrl(MSR_IA32_FEATURE_CONTROL, features);
+		if ((features &
+		     FEATURE_CONTROL_VMXON_ENABLED_OUTSIDE_SMX) == 0) {
 			pr_err("jailhouse: VT-x disabled by Firmware/BIOS\n");
 			err = -ENODEV;
 			goto error_put_module;
@@ -589,11 +567,6 @@ static int jailhouse_cmd_enable(struct jailhouse_system __user *arg)
 
 	header->online_cpus = num_online_cpus();
 
-	/*
-	 * Cannot use wait=true here because all CPUs have to enter the
-	 * hypervisor to start the handover while on_each_cpu holds the calling
-	 * CPU back.
-	 */
 	atomic_set(&call_done, 0);
 	on_each_cpu(enter_hypervisor, header, 0);
 	while (atomic_read(&call_done) != num_online_cpus())
@@ -670,13 +643,7 @@ static void leave_hypervisor(void *info)
 
 #if defined(CONFIG_X86) && LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
 	/* on Intel, VMXE is now off - update the shadow */
-	if (boot_cpu_has(X86_FEATURE_VMX) && !err) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,5,0)
-		cr4_clear_bits_irqsoff(X86_CR4_VMXE);
-#else
-		cr4_clear_bits(X86_CR4_VMXE);
-#endif
-	}
+	cr4_init_shadow();
 #endif
 
 	atomic_inc(&call_done);
@@ -725,7 +692,6 @@ static int jailhouse_cmd_disable(void)
 #endif
 
 	atomic_set(&call_done, 0);
-	/* See jailhouse_cmd_enable while wait=true does not work. */
 	on_each_cpu(leave_hypervisor, NULL, 0);
 	while (atomic_read(&call_done) != num_online_cpus())
 		cpu_relax();
@@ -923,7 +889,7 @@ static int __init jailhouse_init(void)
 {
 	int err;
 
-#if defined(CONFIG_KALLSYMS_ALL) && LINUX_VERSION_CODE < KERNEL_VERSION(5,7,0)
+#ifdef CONFIG_KALLSYMS_ALL
 #define __RESOLVE_EXTERNAL_SYMBOL(symbol)			\
 	symbol##_sym = (void *)kallsyms_lookup_name(#symbol);	\
 	if (!symbol##_sym)					\

@@ -31,10 +31,10 @@ Contribution Checklist
 
 - test patches sufficiently (obvious, but...) [**required**]
     - no regressions are caused in affected code
-    - seemingly unaffected architectures still build (use github actions e.g.)
+    - seemingly unaffected architectures still build (use Travis CI e.g.)
     - static code analyzer finds no new defects (register a github fork with
-      Coverity for free scanning) [*recommended*]
-    - python code shall be tested with python 3 [**required**]
+      Travis CI and Coverity for free scanning) [*recommended*]
+    - python code shall be tested with python 2 and 3 [**required**]
     - the world is still spinning
 
 - add signed-off to all patches [**required**]

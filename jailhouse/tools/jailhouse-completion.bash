@@ -1,7 +1,7 @@
 # bash completion for jailhouse
 #
 # Copyright (c) Benjamin Block, 2014
-# Copyright (c) Siemens AG, 2015-2020
+# Copyright (c) Siemens AG, 2015-2016
 #
 # Authors:
 #  Benjamin Block <bebl@mageta.org>
@@ -291,25 +291,6 @@ function _jailhouse_config_create() {
 	return 0
 }
 
-function _jailhouse_config_check() {
-	local cur
-
-	cur="${COMP_WORDS[COMP_CWORD]}"
-
-	options="-h --help"
-
-	# if we already have begun to write an option
-	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W "${options}" -- "${cur}") )
-	else
-		# neither option, nor followup of one. Lets assume we want the
-		# target-filename
-		_filedir "cell"
-	fi
-
-	return 0
-}
-
 function _jailhouse() {
 	# returns two value: - numeric from "return" (success/failure)
 	#                    - ${COMPREPLY}; an bash-array from which bash will
@@ -323,7 +304,7 @@ function _jailhouse() {
 
 	# second level
 	command_cell="create load start shutdown destroy linux list stats"
-	command_config="create collect check"
+	command_config="create collect"
 
 	# ${COMP_WORDS} array containing the words on the current command line
 	# ${COMP_CWORD} index into COMP_WORDS, pointing at the current position
@@ -399,9 +380,6 @@ function _jailhouse() {
 				[ "${COMP_CWORD}" -gt 3 ] && return 1
 
 				_filedir
-				;;
-			check)
-				_jailhouse_config_check || return 1
 				;;
 			*)
 				return 1;;

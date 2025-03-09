@@ -20,9 +20,9 @@
 
 #define CAT_ROOT_COS	0
 
-static unsigned int cbm_max;
+static unsigned int cbm_max, freed_mask;
 static int cos_max = -1;
-static u64 orig_root_mask, freed_mask;
+static u64 orig_root_mask;
 
 void cat_update(void)
 {
@@ -141,14 +141,13 @@ static int cat_cell_init(struct cell *cell)
 
 	cell->arch.cos = CAT_ROOT_COS;
 
-	/* NOTE: the EBUSY check below relies on this */
 	if (cos_max < 0)
 		return 0;
 
 	if (cell->config->num_cache_regions > 0) {
 		if (cell != &root_cell) {
 			cell->arch.cos = get_free_cos();
-			if (cell->arch.cos > (u32)cos_max)
+			if (cell->arch.cos > cos_max)
 				return trace_error(-EBUSY);
 		}
 
@@ -156,8 +155,7 @@ static int cat_cell_init(struct cell *cell)
 
 		if (cell->config->num_cache_regions != 1 ||
 		    cache->type != JAILHOUSE_CACHE_L3 ||
-		    cache->size == 0 ||
-		    (cache->start + cache->size - 1) > cbm_max)
+		    cache->size == 0 || (cache->start + cache->size) > cbm_max)
 			return trace_error(-EINVAL);
 
 		cell->arch.cat_mask =

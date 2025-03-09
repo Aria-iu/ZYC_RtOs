@@ -23,7 +23,7 @@
 #include <asm/processor.h>
 
 /** Protects the root bridge's PIO interface to the PCI config space. */
-static spinlock_t pci_lock;
+static DEFINE_SPINLOCK(pci_lock);
 
 u32 arch_pci_read_config(u16 bdf, u16 address, unsigned int size)
 {
@@ -194,20 +194,16 @@ int x86_pci_config_handler(u16 port, bool dir_in, unsigned int size)
 			result = data_port_in_handler(device, address, size);
 		else
 			result = data_port_out_handler(device, address, size);
-		if (result < 0) {
-			panic_printk("FATAL: Invalid PCI config %s, device "
-				     "%02x:%02x.%x, reg: 0x%x, size: %d\n",
-				     dir_in ? "read" : "write",
-				     PCI_BDF_PARAMS(bdf), address, size);
-			return -1;
-		}
+		if (result < 0)
+			goto invalid_access;
 	}
 
 	return result;
 
 invalid_access:
-	panic_printk("FATAL: Invalid PCI config %s, port: 0x%x, size: %d\n",
-		     dir_in ? "read" : "write", port, size);
+	panic_printk("FATAL: Invalid PCI config %s, port: %x, size %d, "
+		     "address port: %x\n", dir_in ? "read" : "write", port,
+		     size, cell->arch.pci_addr_port_val);
 	return -1;
 
 }

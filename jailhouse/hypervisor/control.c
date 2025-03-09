@@ -19,6 +19,7 @@
 #include <jailhouse/string.h>
 #include <jailhouse/unit.h>
 #include <jailhouse/utils.h>
+#include <asm/bitops.h>
 #include <asm/control.h>
 #include <asm/spinlock.h>
 
@@ -31,7 +32,7 @@ struct jailhouse_system *system_config;
 /** State structure of the root cell. @ingroup Control */
 struct cell root_cell;
 
-static spinlock_t shutdown_lock;
+static DEFINE_SPINLOCK(shutdown_lock);
 static unsigned int num_cells = 1;
 
 volatile unsigned long panic_in_progress;
@@ -48,8 +49,7 @@ unsigned long panic_cpu = -1;
  * @note For internal use only. Use for_each_cpu() or for_each_cpu_except()
  * instead.
  */
-unsigned int next_cpu(unsigned int cpu, struct cpu_set *cpu_set,
-		      unsigned int exception)
+unsigned int next_cpu(unsigned int cpu, struct cpu_set *cpu_set, int exception)
 {
 	do
 		cpu++;
@@ -103,10 +103,6 @@ static void suspend_cpu(unsigned int cpu_id)
 	target_data->suspend_cpu = true;
 	target_suspended = target_data->cpu_suspended;
 
-	/*
-	 * Acts as memory barrier on certain architectures to make suspend_cpu
-	 * visible. Otherwise, arch_send_event() will take care of that.
-	 */
 	spin_unlock(&target_data->control_lock);
 
 	if (!target_suspended) {

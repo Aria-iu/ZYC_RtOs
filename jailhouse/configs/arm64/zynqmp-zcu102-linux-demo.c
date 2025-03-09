@@ -26,7 +26,6 @@ struct {
 	.cell = {
 		.signature = JAILHOUSE_CELL_DESC_SIGNATURE,
 		.revision = JAILHOUSE_CONFIG_REVISION,
-		.architecture = JAILHOUSE_ARM64,
 		.name = "ZynqMP-linux-demo",
 		.flags = JAILHOUSE_CELL_PASSIVE_COMMREG,
 
@@ -92,7 +91,7 @@ struct {
 				1 << (54 - 32),
 				0,
 				0,
-				(1 << (141 - 128)) | (1 << (143 - 128))
+				(1 << (140 - 128)) | (1 << (142 - 128))
 			},
 		},
 	},

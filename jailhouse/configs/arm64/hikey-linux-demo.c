@@ -26,7 +26,6 @@ struct {
 	.cell = {
 		.signature = JAILHOUSE_CELL_DESC_SIGNATURE,
 		.revision = JAILHOUSE_CONFIG_REVISION,
-		.architecture = JAILHOUSE_ARM64,
 		.name = "hikey-linux-demo",
 		.flags = JAILHOUSE_CELL_PASSIVE_COMMREG,
 
@@ -87,7 +86,7 @@ struct {
 			.address = 0xf6801000,
 			.pin_base = 32,
 			.pin_bitmap = {
-				0, 1 << (71 - 64), 0, 1 << (144 - 128)
+				0, 1 << (71 - 64), 0, 1 << (143 - 128)
 			},
 		},
 	},

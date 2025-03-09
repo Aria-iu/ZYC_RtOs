@@ -24,15 +24,14 @@
 struct {
 	struct jailhouse_cell_desc cell;
 	__u64 cpus[1];
-	struct jailhouse_memory mem_regions[22];
+	struct jailhouse_memory mem_regions[25];
 	struct jailhouse_irqchip irqchips[4];
-	struct jailhouse_pci_device pci_devices[2];
-	union jailhouse_stream_id stream_ids[2];
+	struct jailhouse_pci_device pci_devices[1];
+	__u32 stream_ids[2];
 } __attribute__((packed)) config = {
 	.cell = {
 		.signature = JAILHOUSE_CELL_DESC_SIGNATURE,
 		.revision = JAILHOUSE_CONFIG_REVISION,
-		.architecture = JAILHOUSE_ARM64,
 		.name = "k3-j721e-evm-linux-demo",
 		.flags = JAILHOUSE_CELL_PASSIVE_COMMREG,
 
@@ -57,35 +56,8 @@ struct {
 	},
 
 	.mem_regions = {
-		/* IVSHMEM shared memory regions for 00:00.0 (demo) */
-		{
-			.phys_start = 0x89fe00000,
-			.virt_start = 0x89fe00000,
-			.size = 0x10000,
-			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_ROOTSHARED,
-		},
-		{
-			.phys_start = 0x89fe10000,
-			.virt_start = 0x89fe10000,
-			.size = 0x10000,
-			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_ROOTSHARED |
-				 JAILHOUSE_MEM_WRITE ,
-		},
-		{
-			.phys_start = 0x89fe20000,
-			.virt_start = 0x89fe20000,
-			.size = 0x10000,
-			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_ROOTSHARED,
-		},
-		{
-			.phys_start = 0x89fe30000,
-			.virt_start = 0x89fe30000,
-			.size = 0x10000,
-			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_ROOTSHARED |
-				 JAILHOUSE_MEM_WRITE ,
-		},
-		/* IVSHMEM shared memory regions for 00:01.0 (networking) */
-		JAILHOUSE_SHMEM_NET_REGIONS(0x89fe40000, 1),
+		/* IVSHMEM shared memory region for 00:01.0 */
+		JAILHOUSE_SHMEM_NET_REGIONS(0x89fe00000, 1),
 		/* ctrl mmr */ {
 			.phys_start = 0x00100000,
 			.virt_start = 0x00100000,
@@ -113,20 +85,6 @@ struct {
 			.size = 0x1000,
 			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
 				JAILHOUSE_MEM_IO | JAILHOUSE_MEM_ROOTSHARED,
-		},
-		/* usbss1 */ {
-			.phys_start = 0x04114000,
-			.virt_start = 0x04114000,
-			.size = 0x00001000,
-			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
-				JAILHOUSE_MEM_IO,
-		},
-		/* usbss1 */ {
-			.phys_start = 0x06400000,
-			.virt_start = 0x06400000,
-			.size = 0x00030000,
-			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
-				JAILHOUSE_MEM_IO,
 		},
 		/* main_gpio2 */ {
 			.phys_start = 0x00610000,
@@ -163,8 +121,71 @@ struct {
 			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
 				JAILHOUSE_MEM_IO,
 		},
+		/* D552 decoder */ {
+			.phys_start = 0x4300000,
+			.virt_start = 0x4300000,
+			.size = 0x100000,
+			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
+				JAILHOUSE_MEM_IO,
+		},
+		/* GPU */ {
+			.phys_start = 0x4e20000000,
+			.virt_start = 0x4e20000000,
+			.size = 0x80000,
+			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
+				JAILHOUSE_MEM_IO,
+		},
+		/* dss.common_s1 */ {
+			.phys_start = 0x4B00000,
+			.virt_start = 0x4B00000,
+			.size = 0x00010000,
+			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
+				JAILHOUSE_MEM_IO,
+		},
+		/* dss.vidl1 */ {
+			.phys_start = 0x4A20000,
+			.virt_start = 0x4A20000,
+			.size = 0x00010000,
+			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
+				JAILHOUSE_MEM_IO,
+		},
+		/* dss.ovr1 */ {
+			.phys_start = 0x4A70000,
+			.virt_start = 0x4A70000,
+			.size = 0x00010000,
+			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
+				JAILHOUSE_MEM_IO,
+		},
+		/* dss.vp1 */ {
+			.phys_start = 0x4A80000,
+			.virt_start = 0x4A80000,
+			.size = 0x00010000,
+			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
+				JAILHOUSE_MEM_IO,
+		},
+		/* serdes 10G */ {
+			.phys_start = 0x05050000,
+			.virt_start = 0x05050000,
+			.size = 0x10000,
+			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
+				JAILHOUSE_MEM_IO,
+		},
+		/* DSS_EDP0_V2A_CORE_VP_REGS_AP */ {
+			.phys_start = 0x0A000000,
+			.virt_start = 0x0A000000,
+			.size = 0x31000,
+			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
+				JAILHOUSE_MEM_IO,
+		},
+		/* DSS_EDP0_INTG_CFG_VP */ {
+			.phys_start = 0x04F40000,
+			.virt_start = 0x04F40000,
+			.size = 0x1000,
+			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
+				JAILHOUSE_MEM_IO,
+		},
 		/* linux-loader space */ {
-			.phys_start = 0x89ff40000,
+			.phys_start = 0x89ff00000,
 			.virt_start = 0x0,
 			.size = 0x10000,	/* 64KB */
 			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
@@ -238,22 +259,11 @@ struct {
 	},
 
 	.pci_devices = {
-		/* 00:00.0 (demo) */ {
+		/* 00:00.0 */ {
 			.type = JAILHOUSE_PCI_TYPE_IVSHMEM,
-			.domain = 4,
-			.bdf = 0 << 3,
-			.bar_mask = JAILHOUSE_IVSHMEM_BAR_MASK_INTX_64K,
-			.shmem_regions_start = 0,
-			.shmem_dev_id = 1,
-			.shmem_peers = 2,
-			.shmem_protocol = JAILHOUSE_SHMEM_PROTO_UNDEFINED,
-		},
-		/* 00:01.0 (networking) */ {
-			.type = JAILHOUSE_PCI_TYPE_IVSHMEM,
-			.domain = 4,
 			.bdf = 1 << 3,
-			.bar_mask = JAILHOUSE_IVSHMEM_BAR_MASK_INTX_64K,
-			.shmem_regions_start = 4,
+			.bar_mask = JAILHOUSE_IVSHMEM_BAR_MASK_INTX,
+			.shmem_regions_start = 0,
 			.shmem_dev_id = 1,
 			.shmem_peers = 2,
 			.shmem_protocol = JAILHOUSE_SHMEM_PROTO_VETH,
@@ -262,6 +272,6 @@ struct {
 
 	.stream_ids = {
 		/* Non PCIe peripherals */
-		{0x0003}, {0xf003},
+		0x0003, 0xf003,
 	},
 };

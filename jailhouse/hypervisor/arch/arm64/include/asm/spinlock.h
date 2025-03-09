@@ -21,6 +21,7 @@
 
 #include <jailhouse/types.h>
 
+#define DEFINE_SPINLOCK(name)	spinlock_t (name)
 #define TICKET_SHIFT	16
 
 /* TODO: fix this if we add support for BE */

@@ -26,7 +26,6 @@ struct {
 	.cell = {
 		.signature = JAILHOUSE_CELL_DESC_SIGNATURE,
 		.revision = JAILHOUSE_CONFIG_REVISION,
-		.architecture = JAILHOUSE_ARM,
 		.name = "bananapi-linux-demo",
 		.flags = JAILHOUSE_CELL_PASSIVE_COMMREG,
 
@@ -97,7 +96,7 @@ struct {
 			.address = 0x01c81000,
 			.pin_base = 32,
 			.pin_bitmap = {
-				1 << (52-32), 0, 0, 1 << (156-128),
+				1 << (52-32), 0, 0, 1 << (155-128),
 			},
 		},
 	},

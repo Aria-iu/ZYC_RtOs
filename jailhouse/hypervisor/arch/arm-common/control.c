@@ -15,10 +15,8 @@
 #include <jailhouse/control.h>
 #include <jailhouse/printk.h>
 #include <asm/control.h>
-#include <asm/iommu.h>
 #include <asm/psci.h>
-#include <asm/smc.h>
-#include <asm/smccc.h>
+#include <asm/iommu.h>
 
 static void enter_cpu_off(struct public_per_cpu *cpu_public)
 {
@@ -34,18 +32,19 @@ void arm_cpu_park(void)
 	enter_cpu_off(cpu_public);
 	spin_unlock(&cpu_public->control_lock);
 
-	arm_cpu_reset(0,
-		      !!(this_cell()->config->flags & JAILHOUSE_CELL_AARCH32));
-
+	arm_cpu_reset(0);
 	arm_paging_vcpu_init(&parking_pt);
 }
 
-void arch_send_event(struct public_per_cpu *target_data)
+void arm_cpu_kick(unsigned int cpu_id)
 {
-	if (sdei_available)
-		smc_arg2(SDEI_EVENT_SIGNAL, 0, target_data->mpidr);
-	else
-		irqchip_send_sgi(target_data->cpu_id, SGI_EVENT);
+	struct sgi sgi;
+
+	sgi.targets = irqchip_get_cpu_target(cpu_id);
+	sgi.cluster_id = irqchip_get_cluster_target(cpu_id);
+	sgi.routing_mode = 0;
+	sgi.id = SGI_EVENT;
+	irqchip_send_sgi(&sgi);
 }
 
 void arch_reset_cpu(unsigned int cpu_id)
@@ -107,9 +106,7 @@ static void check_events(struct public_per_cpu *cpu_public)
 	if (cpu_public->wait_for_poweron)
 		arm_cpu_park();
 	else if (reset)
-		arm_cpu_reset(cpu_public->cpu_on_entry,
-			      !!(this_cell()->config->flags &
-			         JAILHOUSE_CELL_AARCH32));
+		arm_cpu_reset(cpu_public->cpu_on_entry);
 }
 
 void arch_handle_sgi(u32 irqn, unsigned int count_event)

@@ -10,21 +10,13 @@
  * the COPYING file in the top-level directory.
  */
 
-#include <jailhouse/bitops.h>
 #include <jailhouse/mmio.h>
 #include <jailhouse/pci.h>
 #include <jailhouse/printk.h>
+#include <asm/bitops.h>
 #include <jailhouse/percpu.h>
 #include <asm/processor.h>
 #include <asm/traps.h>
-
-/* Extend the value of 'size' bits to a signed long */
-static inline unsigned long sign_extend(unsigned long val, unsigned int size)
-{
-	unsigned long mask = 1UL << (size - 1);
-
-	return (val ^ mask) - mask;
-}
 
 /* Taken from the ARM ARM pseudocode for taking a data abort */
 static void arch_inject_dabt(struct trap_context *ctx, unsigned long addr)
@@ -38,7 +30,7 @@ static void arch_inject_dabt(struct trap_context *ctx, unsigned long addr)
 	arm_read_sysreg(TTBCR, ttbcr);
 
 	arm_read_banked_reg(ELR_hyp, pc);
-	arm_read_banked_reg(SPSR, cpsr);
+	arm_read_banked_reg(SPSR_hyp, cpsr);
 
 	/* Set cpsr */
 	is_thumb = cpsr & PSR_T_BIT;
@@ -50,7 +42,7 @@ static void arch_inject_dabt(struct trap_context *ctx, unsigned long addr)
 	if (sctlr & SCTLR_EE_BIT)
 		cpsr |= PSR_E_BIT;
 
-	arm_write_banked_reg(SPSR_fsxc, cpsr);
+	arm_write_banked_reg(SPSR_hyp, cpsr);
 
 	lr_offset = (is_thumb ? 4 : 0);
 	arm_write_banked_reg(LR_abt, pc + lr_offset);
@@ -111,7 +103,7 @@ enum trap_return arch_handle_dabt(struct trap_context *ctx)
 	if (is_write) {
 		/* Load the value to write from the src register */
 		access_cell_reg(ctx, srt, &mmio.value, true);
-		if (sse && size < sizeof(unsigned long))
+		if (sse)
 			mmio.value = sign_extend(mmio.value, 8 * size);
 	} else {
 		mmio.value = 0;
@@ -127,7 +119,7 @@ enum trap_return arch_handle_dabt(struct trap_context *ctx)
 
 	/* Put the read value into the dest register */
 	if (!is_write) {
-		if (sse && size < sizeof(unsigned long))
+		if (sse)
 			mmio.value = sign_extend(mmio.value, 8 * size);
 		access_cell_reg(ctx, srt, &mmio.value, false);
 	}

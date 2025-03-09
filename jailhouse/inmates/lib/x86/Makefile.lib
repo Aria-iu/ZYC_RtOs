@@ -36,8 +36,6 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-include $(ALWAYS_COMPAT_MK)
-
 -include $(GEN_CONFIG_MK)
 
 KBUILD_CFLAGS += -m64 -mno-red-zone
@@ -45,7 +43,7 @@ LINUXINCLUDE += -I$(INMATES_LIB)/include
 
 define DECLARE_TARGETS =
  _TARGETS = $(1)
- always-y := $$(_TARGETS)
+ always := $$(_TARGETS)
  # $(NAME-y) NAME-linked.o NAME.bin
  targets += $$(foreach t,$$(_TARGETS:.bin=-y),$$($$t)) \
             $$(_TARGETS:.bin=-linked.o) $$(_TARGETS)
@@ -57,10 +55,10 @@ endef
 # obj/NAME-linked.o: ... obj/$(NAME-y) lib/lib[32].a
 .SECONDEXPANSION:
 $(obj)/%-linked.o: $(INMATES_LIB)/inmate.lds $$(addprefix $$(obj)/,$$($$*-y)) \
-		   $(INMATES_LIB)/$$(if $$($$*_32),lib32.a,lib.a) FORCE
+		   $(INMATES_LIB)/$$(if $$($$*_32),lib32.a,lib.a)
 	$(call if_changed,ld)
 
-$(obj)/%.bin: $(obj)/%-linked.o FORCE
+$(obj)/%.bin: $(obj)/%-linked.o
 	$(call if_changed,objcopy)
 
 # 32-bit (i386) support

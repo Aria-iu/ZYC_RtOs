@@ -14,8 +14,6 @@
 #include <jailhouse/percpu.h>
 #include <asm/paging.h>
 
-unsigned int cpu_parange_encoded;
-
 /**
  * Return the physical address bits.
  *
@@ -26,11 +24,9 @@ unsigned int cpu_parange_encoded;
  */
 unsigned int get_cpu_parange(void)
 {
-	static const unsigned int pa_bits[] = { 32, 36, 40, 42, 44, 48 };
+	/* Larger than any possible value */
+	unsigned int parange = 0x10;
 	unsigned int cpu;
-
-	/* Largest supported value (for 4K paging) */
-	cpu_parange_encoded = PARANGE_48B;
 
 	/*
 	 * early_init calls paging_init, which will indirectly call
@@ -40,9 +36,23 @@ unsigned int get_cpu_parange(void)
 	 */
 	for (cpu = 0; cpu < system_config->root_cell.cpu_set_size * 8; cpu++)
 		if (cpu_id_valid(cpu) &&
-		    (per_cpu(cpu)->id_aa64mmfr0 & 0xf) < cpu_parange_encoded)
-			cpu_parange_encoded = per_cpu(cpu)->id_aa64mmfr0 & 0xf;
+		    (per_cpu(cpu)->id_aa64mmfr0 & 0xf) < parange)
+			parange = per_cpu(cpu)->id_aa64mmfr0 & 0xf;
 
-	return cpu_parange_encoded < ARRAY_SIZE(pa_bits) ?
-		pa_bits[cpu_parange_encoded] : 0;
+	switch (parange) {
+	case PARANGE_32B:
+		return 32;
+	case PARANGE_36B:
+		return 36;
+	case PARANGE_40B:
+		return 40;
+	case PARANGE_42B:
+		return 42;
+	case PARANGE_44B:
+		return 44;
+	case PARANGE_48B:
+		return 48;
+	default:
+		return 0;
+	}
 }

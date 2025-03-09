@@ -17,6 +17,8 @@
 
 #include <jailhouse/paging.h>
 
+#include <jailhouse/cell-config.h>
+
 struct cell_ioapic;
 
 /** x86-specific cell states. */

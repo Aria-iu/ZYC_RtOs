@@ -143,14 +143,13 @@ gdt_ptr:
 
 	.align(4096)
 pml4:
-	.quad	pdpt + PAGE_DEFAULT_FLAGS
+	.quad	pdpt + 0x003
 
 	.align(4096)
 pdpt:
-	.quad	pd + PAGE_DEFAULT_FLAGS
+	.quad	pd + 0x003
 
 	.align(4096)
 pd:
-	/* ID map 2M@0x0 */
-	.quad	0x0 + (PAGE_FLAG_PS | PAGE_DEFAULT_FLAGS)
+	.quad	0x0000000000000083
 	.align(4096)

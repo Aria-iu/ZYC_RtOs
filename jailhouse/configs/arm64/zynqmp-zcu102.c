@@ -23,12 +23,10 @@ struct {
 	struct jailhouse_memory mem_regions[12];
 	struct jailhouse_irqchip irqchips[1];
 	struct jailhouse_pci_device pci_devices[2];
-	union jailhouse_stream_id stream_ids[3];
 } __attribute__((packed)) config = {
 	.header = {
 		.signature = JAILHOUSE_SYSTEM_SIGNATURE,
 		.revision = JAILHOUSE_CONFIG_REVISION,
-		.architecture = JAILHOUSE_ARM64,
 		.flags = JAILHOUSE_SYS_VIRTUAL_DEBUG_CONSOLE,
 		.hypervisor_memory = {
 			.phys_start = 0x800000000,
@@ -46,13 +44,6 @@ struct {
 			.pci_mmconfig_end_bus = 0,
 			.pci_is_virtual = 1,
 			.pci_domain = -1,
-			.iommu_units = {
-				{
-					.type = JAILHOUSE_IOMMU_ARM_MMU500,
-					.base = 0xfd800000,
-					.size = 0x20000,
-				},
-			},
 			.arm = {
 				.gic_version = 2,
 				.gicd_base = 0xf9010000,
@@ -69,7 +60,6 @@ struct {
 			.num_memory_regions = ARRAY_SIZE(config.mem_regions),
 			.num_irqchips = ARRAY_SIZE(config.irqchips),
 			.num_pci_devices = ARRAY_SIZE(config.pci_devices),
-			.num_stream_ids = ARRAY_SIZE(config.stream_ids),
 
 			.vpci_irq_base = 136-32,
 		},
@@ -144,21 +134,6 @@ struct {
 			.shmem_dev_id = 0,
 			.shmem_peers = 2,
 			.shmem_protocol = JAILHOUSE_SHMEM_PROTO_VETH,
-		},
-	},
-
-	.stream_ids = {
-		{
-			.mmu500.id = 0x860,
-			.mmu500.mask_out = 0x0,
-		},
-		{
-			.mmu500.id = 0x861,
-			.mmu500.mask_out = 0x0,
-		},
-		{
-			.mmu500.id = 0x870,
-			.mmu500.mask_out = 0xf,
 		},
 	},
 };

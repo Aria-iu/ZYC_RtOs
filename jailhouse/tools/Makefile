@@ -10,8 +10,6 @@
 # the COPYING file in the top-level directory.
 #
 
-include $(ALWAYS_COMPAT_MK)
-
 -include $(GEN_CONFIG_MK)
 
 # includes installation-related variables and definitions
@@ -34,22 +32,15 @@ KBUILD_LDFLAGS :=
 KBUILD_CFLAGS += $(call cc-option, -fno-pie)
 KBUILD_CFLAGS += $(call cc-option, -no-pie)
 
-BINARIES := jailhouse demos/ivshmem-demo
-targets += jailhouse.o demos/ivshmem-demo.o
-
-ifeq ($(ARCH),x86)
-BINARIES += demos/cache-timings
-targets += demos/cache-timings.o
-endif # $(ARCH),x86
-
-always-y := $(BINARIES)
+BINARIES := jailhouse ivshmem-demo
+always := $(BINARIES)
 
 HAS_PYTHON_MAKO := \
-	$(shell $(PYTHON3) -c "from mako.template import Template" 2>/dev/null \
+	$(shell $(PYTHON) -c "from mako.template import Template" 2>/dev/null \
 	&& echo yes)
 
 ifeq ($(strip $(HAS_PYTHON_MAKO)), yes)
-always-y += jailhouse-config-collect
+always += jailhouse-config-collect
 HELPERS := jailhouse-config-collect
 
 else  # !HAS_PYTHON_MAKO
@@ -57,7 +48,7 @@ else  # !HAS_PYTHON_MAKO
 HELPERS :=
 $(info WARNING: Could not create the helper script to generate \
 	   configurations on remote machines \
-	   ("jailhouse-config-collect"). You need Python and the \
+	   ("jailhouse-conf-collect"). You need Python and the \
 	   Mako library for it.)
 endif # !HAS_PYTHON_MAKO
 
@@ -66,7 +57,6 @@ HELPERS += \
 	jailhouse-cell-linux \
 	jailhouse-cell-stats \
 	jailhouse-config-create \
-	jailhouse-config-check \
 	jailhouse-hardware-check
 TEMPLATES := jailhouse-config-collect.tmpl root-cell-config.c.tmpl
 
@@ -75,7 +65,6 @@ install-libexec: $(HELPERS) $(DESTDIR)$(libexecdir)/jailhouse
 	$(Q)$(call patch_dirvar,libexecdir,$(lastword $^)/jailhouse-cell-linux)
 	$(Q)$(call patch_dirvar,datadir,$(lastword $^)/jailhouse-config-create)
 	$(Q)$(call patch_pyjh_import,$(lastword $^)/jailhouse-cell-linux)
-	$(Q)$(call patch_pyjh_import,$(lastword $^)/jailhouse-config-check)
 
 install-data: $(TEMPLATES) $(DESTDIR)$(datadir)/jailhouse
 	$(INSTALL_DATA) $^
@@ -111,7 +100,12 @@ define cmd_gen_man
 	sed 's/$${VERSION}/$(shell cat $(src)/../VERSION)/g' $< > $@
 endef
 
-$(obj)/%: $(obj)/%.o FORCE
+targets += jailhouse.o ivshmem-demo.o
+
+$(obj)/jailhouse: $(obj)/jailhouse.o
+	$(call if_changed,ld)
+
+$(obj)/ivshmem-demo: $(obj)/ivshmem-demo.o
 	$(call if_changed,ld)
 
 CFLAGS_jailhouse-gcov-extract.o	:= -I$(src)/../hypervisor/include \
@@ -120,15 +114,18 @@ CFLAGS_jailhouse-gcov-extract.o	:= -I$(src)/../hypervisor/include \
 LDFLAGS_jailhouse-gcov-extract := -lgcov -fprofile-arcs
 
 targets += jailhouse-gcov-extract.o
-always-y += jailhouse-gcov-extract
+always += jailhouse-gcov-extract
 
-$(obj)/jailhouse-config-collect: $(src)/jailhouse-config-create $(src)/jailhouse-config-collect.tmpl FORCE
+$(obj)/jailhouse-gcov-extract: $(obj)/jailhouse-gcov-extract.o
+	$(call if_changed,ld)
+
+$(obj)/jailhouse-config-collect: $(src)/jailhouse-config-create $(src)/jailhouse-config-collect.tmpl
 	$(call if_changed,gen_collect)
 
 targets += $(MAN8_PAGES)
-always-y +=  $(MAN8_PAGES)
+always +=  $(MAN8_PAGES)
 
-$(obj)/%.8: $(src)/%.8.in FORCE
+$(obj)/%.8: $(src)/%.8.in
 	$(call if_changed,gen_man)
 
 install-bin: $(BINARIES) $(DESTDIR)$(sbindir)

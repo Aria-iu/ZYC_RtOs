@@ -13,8 +13,8 @@
  * the COPYING file in the top-level directory.
  */
 
-#include <jailhouse/paging.h>
 #include <asm/asm-defines.h>
+#include <asm/paging.h>
 #include <asm/smccc.h>
 #include <asm/jailhouse_hypercall.h>
 #include <jailhouse/header.h>
@@ -378,14 +378,6 @@ el1_trap:
 	ldr	x4, [sp, #(2 * 16 + 1 * 8)]
 	add	sp, sp, #(16 * 16)
 	eret
-	/*
-	 * Mitigate Straight-line Speculation.
-	 * Guard against Speculating past an ERET instruction and
-	 * potentially perform speculative accesses to memory before
-	 * processing the exception return
-	 */
-	dsb nsh
-	isb
 .endm
 
 /*
@@ -409,8 +401,8 @@ hyp_vectors:
 	ventry	.
 	ventry	.
 
-	handle_vmexit arch_handle_trap
-	handle_vmexit irqchip_handle_irq
+	ventry	.
+	ventry	.
 	ventry	.
 	ventry	.
 
@@ -433,8 +425,8 @@ hyp_vectors_hardened:
 	ventry	.
 	ventry	.
 
-	handle_abort_fastpath
-	handle_vmexit irqchip_handle_irq
+	ventry	.
+	ventry	.
 	ventry	.
 	ventry	.
 
@@ -460,16 +452,8 @@ enable_mmu_el2:
 	ldr	x1, =(T0SZ(48) | (TCR_RGN_WB_WA << TCR_IRGN0_SHIFT)	\
 			       | (TCR_RGN_WB_WA << TCR_ORGN0_SHIFT)	\
 			       | (TCR_INNER_SHAREABLE << TCR_SH0_SHIFT)	\
+			       | (PARANGE_48B << TCR_PS_SHIFT)		\
 			       | TCR_EL2_RES1)
-
-	/*
-	 * set TCR.(I)PS to the highest supported ID_AA64MMFR0_EL1.PARange value
-	 */
-	mrs     x9, id_aa64mmfr0_el1
-	/* Narrow PARange to fit the PS field in TCR_ELx */
-	ubfx    x9, x9, #ID_AA64MMFR0_PARANGE_SHIFT, #3
-	bfi     x1, x9, #TCR_PS_SHIFT, #3
-
 	msr	tcr_el2, x1
 
 	msr	ttbr0_el2, x0
@@ -538,30 +522,4 @@ __vmreturn:
 	ldr	    x0, [sp, #(1 * 8)]
 	add	sp, sp, #(16 * 16)
 	eret
-	/*
-	 * Mitigate Straight-line Speculation.
-	 * Guard against Speculating past an ERET instruction and
-	 * potentially perform speculative accesses to memory before
-	 * processing the exception return
-	 */
-	dsb nsh
-	isb
 	.popsection
-
-
-	.globl sdei_handler
-sdei_handler:
-	mov	w0, #1
-	strh	w0, [x1, #PERCPU_SDEI_EVENT]
-
-	mrs	x0, vtcr_el2
-	orr	x0, x0, #0xff
-	msr	vtcr_el2, x0
-	isb
-	tlbi	vmalls12e1is
-
-	ldr	x0, =SDEI_EVENT_COMPLETE
-	mov	x1, #SDEI_EV_HANDLED
-	smc	#0
-
-	b	.

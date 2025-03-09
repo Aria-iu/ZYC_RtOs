@@ -20,9 +20,13 @@ INCLUDES := -I$(INMATES_LIB) \
 	    -I$(src)/lib/include \
 	    -I$(src)/../include
 
+ifeq ($(subst arm64,arm,$(SRCARCH)),arm)
+INCLUDES += -I$(src)/../hypervisor/arch/arm-common/include
+endif
+
 LINUXINCLUDE  := $(INCLUDES)
 KBUILD_AFLAGS := -D__ASSEMBLY__ -fno-PIE
-KBUILD_CFLAGS := -g -Os -Werror -Wall -Wstrict-prototypes -Wtype-limits \
+KBUILD_CFLAGS := -g -Os -Wall -Wstrict-prototypes -Wtype-limits \
 		 -Wmissing-declarations -Wmissing-prototypes \
 		 -fno-strict-aliasing -fomit-frame-pointer -fno-pic \
 		 -fno-common -fno-stack-protector -ffreestanding \
@@ -31,12 +35,8 @@ KBUILD_CFLAGS := -g -Os -Werror -Wall -Wstrict-prototypes -Wtype-limits \
 ifneq ($(wildcard $(INC_CONFIG_H)),)
 KBUILD_CFLAGS += -include $(INC_CONFIG_H)
 endif
-ifeq ($(SRCARCH),arm)
-KBUILD_CFLAGS += -march=armv7ve -msoft-float
-KBUILD_AFLAGS += -march=armv7ve -msoft-float
-endif
 
-OBJCOPYFLAGS := -O binary --remove-section=.note.gnu.property
+OBJCOPYFLAGS := -O binary
 # prior to 4.19
 LDFLAGS += --gc-sections -T
 # since 4.19

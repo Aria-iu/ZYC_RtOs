@@ -22,12 +22,12 @@
 #include <generated/version.h>
 #include <asm/spinlock.h>
 
-extern u8 __text_start[];
+extern u8 __text_start[], __page_pool[];
 
 static const __attribute__((aligned(PAGE_SIZE))) u8 empty_page[PAGE_SIZE];
 
-static spinlock_t init_lock;
-static unsigned int master_cpu_id = INVALID_CPU_ID;
+static DEFINE_SPINLOCK(init_lock);
+static unsigned int master_cpu_id = -1;
 static volatile unsigned int entered_cpus, initialized_cpus;
 static volatile int error;
 
@@ -224,7 +224,7 @@ int entry(unsigned int cpu_id, struct per_cpu *cpu_data)
 
 	spin_lock(&init_lock);
 
-	if (master_cpu_id == INVALID_CPU_ID) {
+	if (master_cpu_id == -1) {
 		/* Only the master CPU, the first to enter this
 		 * function, performs system-wide initializations. */
 		master = true;

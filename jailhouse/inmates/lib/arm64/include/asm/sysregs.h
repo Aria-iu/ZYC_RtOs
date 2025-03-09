@@ -75,8 +75,6 @@
 
 #define MPIDR	MPIDR_EL1
 
-#define MPIDR_CPUID_MASK	0xff00ffffffUL
-
 #define MPIDR_LEVEL_BITS_SHIFT	3
 #define MPIDR_LEVEL_BITS	(1 << MPIDR_LEVEL_BITS_SHIFT)
 #define MPIDR_LEVEL_MASK	((1 << MPIDR_LEVEL_BITS) - 1)
@@ -90,11 +88,10 @@
 #define SYSREG_32(op1, crn, crm, op2)	s3_##op1 ##_##crn ##_##crm ##_##op2
 
 #define arm_write_sysreg(sysreg, val) \
-	asm volatile ("msr	"__stringify(sysreg)", %0\n" \
-			: : "r" ((u64)(val)))
+	asm volatile ("msr	"__stringify(sysreg)", %0\n" : : "r"((u64)(val)))
 
 #define arm_read_sysreg(sysreg, val) \
-	asm volatile ("mrs	%0,  "__stringify(sysreg)"\n" : "=r" ((val)))
+	asm volatile ("mrs	%0,  "__stringify(sysreg)"\n" : "=r"((val)))
 
 #include <asm/sysregs_common.h>
 

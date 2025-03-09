@@ -15,7 +15,6 @@
 #include <asm/gic.h>
 #include <asm/gic_v2.h>
 #include <asm/irqchip.h>
-#include <asm/smccc.h>
 
 /* The GICv2 interface numbering does not necessarily match the logical map */
 static u8 gicv2_target_cpu_map[8];
@@ -24,14 +23,14 @@ static unsigned int gic_num_lr;
 static void *gicc_base;
 static void *gich_base;
 
-static u32 gicv2_read_lr(unsigned int n)
+static u32 gicv2_read_lr(unsigned int i)
 {
-	return mmio_read32(gich_base + GICH_LR_BASE + n * 4);
+	return mmio_read32(gich_base + GICH_LR_BASE + i * 4);
 }
 
-static void gicv2_write_lr(unsigned int n, u32 value)
+static void gicv2_write_lr(unsigned int i, u32 value)
 {
-	mmio_write32(gich_base + GICH_LR_BASE + n * 4, value);
+	mmio_write32(gich_base + GICH_LR_BASE + i * 4, value);
 }
 
 /* Check that the targeted interface belongs to the cell */
@@ -101,29 +100,7 @@ static int gicv2_cpu_init(struct per_cpu *cpu_data)
 	unsigned int mnt_irq = system_config->platform_info.arm.maintenance_irq;
 	u32 vtr, vmcr;
 	u32 cell_gicc_ctlr, cell_gicc_pmr;
-	u32 gicd_isacter;
 	unsigned int n;
-
-	/*
-	 * Get the CPU interface ID for this cpu. It can be discovered by
-	 * reading the banked value of the PPI and IPI TARGET registers
-	 * Patch 2bb3135 in Linux explains why the probe may need to scans the
-	 * first 8 registers: some early implementation returned 0 for the first
-	 * ITARGETSR registers.
-	 * Since those didn't have virtualization extensions, we can safely
-	 * ignore that case.
-	 */
-	if (cpu_data->public.cpu_id >= ARRAY_SIZE(gicv2_target_cpu_map))
-		return trace_error(-EINVAL);
-
-	gicv2_target_cpu_map[cpu_data->public.cpu_id] =
-		mmio_read32(gicd_base + GICD_ITARGETSR);
-
-	if (gicv2_target_cpu_map[cpu_data->public.cpu_id] == 0)
-		return trace_error(-ENODEV);
-
-	if (sdei_available)
-		return 0;
 
 	/* Ensure all IPIs and the maintenance PPI are enabled. */
 	mmio_write32(gicd_base + GICD_ISENABLER, 0x0000ffff | (1 << mnt_irq));
@@ -169,9 +146,23 @@ static int gicv2_cpu_init(struct per_cpu *cpu_data)
 
 	cpu_data->public.gicc_initialized = true;
 
-	/* Deactivate all active SGIs */
-	gicd_isacter = mmio_read32(gicd_base + GICD_ISACTIVER);
-	mmio_write32(gicd_base + GICD_ICACTIVER, gicd_isacter & 0xffff);
+	/*
+	 * Get the CPU interface ID for this cpu. It can be discovered by
+	 * reading the banked value of the PPI and IPI TARGET registers
+	 * Patch 2bb3135 in Linux explains why the probe may need to scans the
+	 * first 8 registers: some early implementation returned 0 for the first
+	 * ITARGETSR registers.
+	 * Since those didn't have virtualization extensions, we can safely
+	 * ignore that case.
+	 */
+	if (cpu_data->public.cpu_id >= ARRAY_SIZE(gicv2_target_cpu_map))
+		return trace_error(-EINVAL);
+
+	gicv2_target_cpu_map[cpu_data->public.cpu_id] =
+		mmio_read32(gicd_base + GICD_ITARGETSR);
+
+	if (gicv2_target_cpu_map[cpu_data->public.cpu_id] == 0)
+		return trace_error(-ENODEV);
 
 	/*
 	 * Forward any pending physical SGIs to the virtual queue.
@@ -234,19 +225,17 @@ static void gicv2_eoi_irq(u32 irq_id, bool deactivate)
 static int gicv2_cell_init(struct cell *cell)
 {
 	/*
-	 * Without SDEI management interrrupts, let the guest access the
-	 * virtual CPU interface instead of the physical.
+	 * Let the guest access the virtual CPU interface instead of the
+	 * physical one.
 	 *
 	 * WARN: some SoCs (EXYNOS4) use a modified GIC which doesn't have any
 	 * banked CPU interface, so we should map per-CPU physical addresses
 	 * here.
 	 * As for now, none of them seem to have virtualization extensions.
 	 */
-	u64 gic_source = sdei_available ?
-		system_config->platform_info.arm.gicc_base :
-		system_config->platform_info.arm.gicv_base;
-
-	return paging_create(&cell->arch.mm, gic_source, GICC_SIZE,
+	return paging_create(&cell->arch.mm,
+			     system_config->platform_info.arm.gicv_base,
+			     GICC_SIZE,
 			     system_config->platform_info.arm.gicc_base,
 			     (PTE_FLAG_VALID | PTE_ACCESS_FLAG |
 			      S2_PTE_ACCESS_RW | S2_PTE_FLAG_DEVICE),
@@ -275,36 +264,41 @@ static void gicv2_adjust_irq_target(struct cell *cell, u16 irq_id)
 	mmio_write32(itargetsr, targets);
 }
 
-static void gicv2_send_sgi(struct sgi *sgi)
+static int gicv2_send_sgi(struct sgi *sgi)
 {
 	u32 val;
+
+	if (!is_sgi(sgi->id))
+		return -EINVAL;
 
 	val = (sgi->routing_mode & 0x3) << 24
 		| (sgi->targets & 0xff) << 16
 		| (sgi->id & 0xf);
 
 	mmio_write32(gicd_base + GICD_SGIR, val);
+
+	return 0;
 }
 
 static int gicv2_inject_irq(u16 irq_id, u16 sender)
 {
-	unsigned int n;
+	int i;
 	int first_free = -1;
 	u32 lr;
 	unsigned long elsr[2];
 
 	elsr[0] = mmio_read32(gich_base + GICH_ELSR0);
 	elsr[1] = mmio_read32(gich_base + GICH_ELSR1);
-	for (n = 0; n < gic_num_lr; n++) {
-		if (test_bit(n, elsr)) {
+	for (i = 0; i < gic_num_lr; i++) {
+		if (test_bit(i, elsr)) {
 			/* Entry is available */
 			if (first_free == -1)
-				first_free = n;
+				first_free = i;
 			continue;
 		}
 
 		/* Check that there is no overlapping */
-		lr = gicv2_read_lr(n);
+		lr = gicv2_read_lr(i);
 		if ((lr & GICH_LR_VIRT_ID_MASK) == irq_id)
 			return -EEXIST;
 	}
@@ -427,8 +421,9 @@ static enum mmio_result gicv2_handle_irq_target(struct mmio_access *mmio,
 	offset = irq % 4;
 	mmio->address &= ~0x3;
 	mmio->value <<= 8 * offset;
+	mmio->size = 4;
 
-	for (n = offset; n < mmio->size + offset; n++) {
+	for (n = 0; n < 4; n++) {
 		if (irqchip_irq_in_cell(cell, irq_base + n))
 			access_mask |= 0xff << (8 * n);
 		else
@@ -446,8 +441,6 @@ static enum mmio_result gicv2_handle_irq_target(struct mmio_access *mmio,
 		}
 	}
 
-	mmio->size = 4;
-
 	if (mmio->is_write) {
 		spin_lock(&dist_lock);
 		u32 itargetsr =
@@ -461,7 +454,6 @@ static enum mmio_result gicv2_handle_irq_target(struct mmio_access *mmio,
 	} else {
 		mmio_perform_access(gicd_base, mmio);
 		mmio->value &= access_mask;
-		mmio->value >>= 8 * offset;
 	}
 
 	return MMIO_HANDLED;

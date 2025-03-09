@@ -46,7 +46,7 @@ struct irqchip {
 	void	(*cell_exit)(struct cell *cell);
 	void	(*adjust_irq_target)(struct cell *cell, u16 irq_id);
 
-	void	(*send_sgi)(struct sgi *sgi);
+	int	(*send_sgi)(struct sgi *sgi);
 	u32	(*read_iar_irqn)(void);
 	void	(*eoi_irq)(u32 irqn, bool deactivate);
 	int	(*inject_irq)(u16 irq_id, u16 sender);
@@ -89,15 +89,13 @@ void irqchip_cell_reset(struct cell *cell);
 
 void irqchip_config_commit(struct cell *cell_added_removed);
 
-void irqchip_send_sgi(unsigned int cpu_id, u16 sgi_id);
+int irqchip_send_sgi(struct sgi *sgi);
 void irqchip_handle_irq(void);
 
 bool irqchip_has_pending_irqs(void);
 
 void irqchip_inject_pending(void);
 void irqchip_set_pending(struct public_per_cpu *cpu_public, u16 irq_id);
-
-void irqchip_trigger_external_irq(u16 irq_id);
 
 bool irqchip_irq_in_cell(struct cell *cell, unsigned int irq_id);
 

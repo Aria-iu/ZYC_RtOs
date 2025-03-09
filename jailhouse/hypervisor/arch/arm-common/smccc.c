@@ -17,58 +17,35 @@
 #include <asm/smc.h>
 #include <asm/smccc.h>
 
-bool sdei_available;
-
-static bool sdei_probed __attribute__((__unused__));
-
-int smccc_discover(void)
+void smccc_discover(void)
 {
-	struct per_cpu *cpu_data = this_cpu_data();
-	long ret;
-
-	cpu_data->smccc_feat_workaround_1 = ARM_SMCCC_NOT_SUPPORTED;
-	cpu_data->smccc_feat_workaround_2 = ARM_SMCCC_NOT_SUPPORTED;
+	int ret;
 
 	ret = smc(PSCI_0_2_FN_VERSION);
 
 	/* We need >=PSCIv1.0 for SMCCC. Against the spec, U-Boot may also
 	 * return a negative error code. */
 	if (ret < 0 || PSCI_VERSION_MAJOR(ret) < 1)
-		return sdei_available ? trace_error(-EIO) : 0;
+		return;
 
 	/* Check if PSCI supports SMCCC version call */
 	ret = smc_arg1(PSCI_1_0_FN_FEATURES, SMCCC_VERSION);
 	if (ret != ARM_SMCCC_SUCCESS)
-		return sdei_available ? trace_error(-EIO) : 0;
+		return;
 
-#ifdef __aarch64__
-	/* Check if we have SDEI (ARMv8 only) */
-	ret = smc(SDEI_VERSION);
-	if (ret >= ARM_SMCCC_VERSION_1_0) {
-		if (sdei_probed && !sdei_available)
-			return trace_error(-EIO);
-		sdei_available = true;
-	}
-	sdei_probed = true;
-#endif
-
-	/* We need to have at least SMCCC v1.1 */
+	/* We need to have SMCCC v1.1 */
 	ret = smc(SMCCC_VERSION);
-	if (ret < ARM_SMCCC_VERSION_1_1)
-		return 0;
+	if (ret != ARM_SMCCC_VERSION_1_1)
+		return;
 
 	/* check if SMCCC_ARCH_FEATURES is actually available */
 	ret = smc_arg1(SMCCC_ARCH_FEATURES, SMCCC_ARCH_FEATURES);
 	if (ret != ARM_SMCCC_SUCCESS)
-		return 0;
+		return;
 
-	cpu_data->smccc_feat_workaround_1 =
-		smc_arg1(SMCCC_ARCH_FEATURES, SMCCC_ARCH_WORKAROUND_1);
+	ret = smc_arg1(SMCCC_ARCH_FEATURES, SMCCC_ARCH_WORKAROUND_1);
 
-	cpu_data->smccc_feat_workaround_2 =
-		smc_arg1(SMCCC_ARCH_FEATURES, SMCCC_ARCH_WORKAROUND_2);
-
-	return 0;
+	this_cpu_data()->smccc_has_workaround_1 = ret >= ARM_SMCCC_SUCCESS;
 }
 
 static inline long handle_arch_features(u32 id)
@@ -78,9 +55,8 @@ static inline long handle_arch_features(u32 id)
 		return ARM_SMCCC_SUCCESS;
 
 	case SMCCC_ARCH_WORKAROUND_1:
-		return this_cpu_data()->smccc_feat_workaround_1;
-	case SMCCC_ARCH_WORKAROUND_2:
-		return this_cpu_data()->smccc_feat_workaround_2;
+		return this_cpu_data()->smccc_has_workaround_1 ?
+			ARM_SMCCC_SUCCESS : ARM_SMCCC_NOT_SUPPORTED;
 
 	default:
 		return ARM_SMCCC_NOT_SUPPORTED;
@@ -100,11 +76,6 @@ static enum trap_return handle_arch(struct trap_context *ctx)
 	case SMCCC_ARCH_FEATURES:
 		*ret = handle_arch_features(ctx->regs[1]);
 		break;
-
-	case SMCCC_ARCH_WORKAROUND_2:
-		if (this_cpu_data()->smccc_feat_workaround_2 < 0)
-			return ARM_SMCCC_NOT_SUPPORTED;
-		return smc_arg1(SMCCC_ARCH_WORKAROUND_2, ctx->regs[1]);
 
 	default:
 		panic_printk("Unhandled SMC arch trap %lx\n", *ret);

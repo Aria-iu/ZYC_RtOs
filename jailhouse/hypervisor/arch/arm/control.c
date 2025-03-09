@@ -20,7 +20,7 @@
 #include <asm/psci.h>
 #include <asm/sysregs.h>
 
-void arm_cpu_reset(unsigned long pc, bool aarch32)
+void arm_cpu_reset(unsigned long pc)
 {
 	u32 sctlr;
 
@@ -84,7 +84,7 @@ void arm_cpu_reset(unsigned long pc, bool aarch32)
 	arm_write_sysreg(TPIDRURO, 0);
 	arm_write_sysreg(TPIDRPRW, 0);
 
-	arm_write_banked_reg(SPSR_fsxc, RESET_PSR);
+	arm_write_banked_reg(SPSR_hyp, RESET_PSR);
 	arm_write_banked_reg(ELR_hyp, pc);
 
 	/* transfer the context that may have been passed to PSCI_CPU_ON */
@@ -101,8 +101,3 @@ void arch_panic_park(void)
 	arm_write_banked_reg(ELR_hyp, 0);
 }
 #endif
-
-void arm_cpu_passthru_suspend(void)
-{
-	/* never called */
-}

@@ -19,7 +19,6 @@
 #include <asm/gic.h>
 #include <asm/gic_v3.h>
 #include <asm/irqchip.h>
-#include <asm/smccc.h>
 #include <asm/sysregs.h>
 #include <asm/traps.h>
 
@@ -200,7 +199,7 @@ static int gicv3_cpu_init(struct per_cpu *cpu_data)
 	unsigned long redist_addr = system_config->platform_info.arm.gicr_base;
 	unsigned long redist_size = GIC_V3_REDIST_SIZE;
 	void *redist_base = gicr_base;
-	unsigned long gicr_ispendr, gicr_isacter;
+	unsigned long gicr_ispendr;
 	unsigned int n;
 	void *gicr;
 	u64 typer, mpidr;
@@ -245,9 +244,6 @@ static int gicv3_cpu_init(struct per_cpu *cpu_data)
 	if ((cpu_data->public.mpidr & MPIDR_AFF0_MASK) >= 16)
 		return trace_error(-EIO);
 
-	if (sdei_available)
-		return 0;
-
 	/* Ensure all IPIs and the maintenance PPI are enabled. */
 	gicr = redist_base + GICR_SGI_BASE;
 	mmio_write32(gicr + GICR_ISENABLER, 0x0000ffff | (1 << mnt_irq));
@@ -291,10 +287,6 @@ static int gicv3_cpu_init(struct per_cpu *cpu_data)
 	/* After this, the cells access the virtual interface of the GIC. */
 	arm_write_sysreg(ICH_HCR_EL2, ICH_HCR_EN);
 
-	/* Deactivate all active SGIs */
-	gicr_isacter = mmio_read32(gicr + GICR_ISACTIVER);
-	mmio_write32(gicr + GICR_ICACTIVER, gicr_isacter & 0xffff);
-
 	/* Forward any pending physical SGIs to the virtual queue. */
 	gicr_ispendr = mmio_read32(gicr + GICR_ISPENDR);
 	for (n = 0; n < 16; n++) {
@@ -311,7 +303,7 @@ static int gicv3_cpu_shutdown(struct public_per_cpu *cpu_public)
 {
 	u32 ich_vmcr, icc_ctlr, cell_icc_igrpen1;
 
-	if (sdei_available || !cpu_public->gicr.base)
+	if (!cpu_public->gicr.base)
 		return -ENODEV;
 
 	arm_write_sysreg(ICH_HCR_EL2, 0);
@@ -352,16 +344,12 @@ static enum mmio_result gicv3_handle_redist_access(void *arg,
 						   struct mmio_access *mmio)
 {
 	struct public_per_cpu *cpu_public = arg;
-	unsigned int mnt_irq = system_config->platform_info.arm.maintenance_irq;
 
 	switch (mmio->address) {
 	case GICR_TYPER:
 		mmio_perform_access(cpu_public->gicr.base, mmio);
 		if (cpu_public->cpu_id == last_gicr)
 				mmio->value |= GICR_TYPER_Last;
-		return MMIO_HANDLED;
-	case GICR_TYPER + 4:
-		mmio_perform_access(cpu_public->gicr.base, mmio);
 		return MMIO_HANDLED;
 	case GICR_IIDR:
 	case 0xffd0 ... 0xfffc: /* ID registers */
@@ -373,17 +361,15 @@ static enum mmio_result gicv3_handle_redist_access(void *arg,
 	case GICR_SYNCR:
 		mmio->value = 0;
 		return MMIO_HANDLED;
+	case GICR_CTLR:
+	case GICR_STATUSR:
+	case GICR_WAKER:
 	case GICR_SGI_BASE + GICR_ISENABLER:
 	case GICR_SGI_BASE + GICR_ICENABLER:
 	case GICR_SGI_BASE + GICR_ISPENDR:
 	case GICR_SGI_BASE + GICR_ICPENDR:
 	case GICR_SGI_BASE + GICR_ISACTIVER:
 	case GICR_SGI_BASE + GICR_ICACTIVER:
-		mmio->value &= ~(SGI_MASK | (1 << mnt_irq));
-		/* fall through */
-	case GICR_CTLR:
-	case GICR_STATUSR:
-	case GICR_WAKER:
 	case REG_RANGE(GICR_SGI_BASE + GICR_IPRIORITYR, 8, 4):
 	case REG_RANGE(GICR_SGI_BASE + GICR_ICFGR, 2, 4):
 		if (this_cell() != cpu_public->cell) {
@@ -425,10 +411,13 @@ static int gicv3_cell_init(struct cell *cell)
 	(MPIDR_AFFINITY_LEVEL((cluster_id), (level)) \
 	<< ICC_SGIR_AFF## level ##_SHIFT)
 
-static void gicv3_send_sgi(struct sgi *sgi)
+static int gicv3_send_sgi(struct sgi *sgi)
 {
 	u64 val;
 	u16 targets = sgi->targets;
+
+	if (!is_sgi(sgi->id))
+		return -EINVAL;
 
 	if (sgi->routing_mode == 2)
 		targets = 1 << phys_processor_id();
@@ -450,6 +439,8 @@ static void gicv3_send_sgi(struct sgi *sgi)
 
 	arm_write_sysreg(ICC_SGI1R_EL1, val);
 	isb();
+
+	return 0;
 }
 
 #define SGIR_TO_AFFINITY(sgir, level)	\
@@ -540,17 +531,17 @@ static void gicv3_eoi_irq(u32 irq_id, bool deactivate)
 
 static int gicv3_inject_irq(u16 irq_id, u16 sender)
 {
-	unsigned int n;
+	int i;
 	int free_lr = -1;
 	u32 elsr;
 	u64 lr;
 
 	arm_read_sysreg(ICH_ELSR_EL2, elsr);
-	for (n = 0; n < gic_num_lr; n++) {
-		if ((elsr >> n) & 1) {
+	for (i = 0; i < gic_num_lr; i++) {
+		if ((elsr >> i) & 1) {
 			/* Entry is invalid, candidate for injection */
 			if (free_lr == -1)
-				free_lr = n;
+				free_lr = i;
 			continue;
 		}
 
@@ -558,7 +549,7 @@ static int gicv3_inject_irq(u16 irq_id, u16 sender)
 		 * Entry is in use, check that it doesn't match the one we want
 		 * to inject.
 		 */
-		lr = gicv3_read_lr(n);
+		lr = gicv3_read_lr(i);
 
 		/*
 		 * A strict phys->virt id mapping is used for SPIs, so this test

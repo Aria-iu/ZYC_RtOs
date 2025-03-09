@@ -11,5 +11,3 @@
 #
 
 LINUXINCLUDE += -I$(src)/arch/arm-common/include
-
-KBUILD_CFLAGS += -march=armv8-a+nofp

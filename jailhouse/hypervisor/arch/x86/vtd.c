@@ -22,6 +22,7 @@
 #include <jailhouse/unit.h>
 #include <asm/apic.h>
 #include <asm/iommu.h>
+#include <asm/bitops.h>
 #include <asm/ioapic.h>
 #include <asm/spinlock.h>
 
@@ -200,7 +201,7 @@ static void *unit_inv_queue;
 static unsigned int dmar_units;
 static unsigned int dmar_pt_levels;
 static unsigned int dmar_num_did = ~0U;
-static spinlock_t inv_queue_lock;
+static DEFINE_SPINLOCK(inv_queue_lock);
 static struct vtd_emulation root_cell_units[JAILHOUSE_MAX_IOMMU_UNITS];
 static bool dmar_units_initialized;
 
@@ -595,7 +596,7 @@ static void vtd_update_irte(unsigned int index, union vtd_irte content)
 
 static int vtd_find_int_remap_region(u16 device_id)
 {
-	unsigned int n;
+	int n;
 
 	/* VTD_INTERRUPT_LIMIT() is < 2^16, see vtd_init */
 	for (n = 0; n < VTD_INTERRUPT_LIMIT(); n++)
@@ -608,8 +609,7 @@ static int vtd_find_int_remap_region(u16 device_id)
 
 static int vtd_reserve_int_remap_region(u16 device_id, unsigned int length)
 {
-	int start = -E2BIG;
-	unsigned int n;
+	int n, start = -E2BIG;
 
 	if (length == 0 || vtd_find_int_remap_region(device_id) >= 0)
 		return 0;
@@ -805,7 +805,8 @@ iommu_get_remapped_root_int(unsigned int iommu, u16 device_id,
 	root_irte = *(union vtd_irte *)(irte_page +
 					(irte_addr & PAGE_OFFS_MASK));
 
-	irq_msg.valid = root_irte.field.p;
+	irq_msg.valid =
+		(root_irte.field.p && root_irte.field.sid == device_id);
 	irq_msg.vector = root_irte.field.vector;
 	irq_msg.delivery_mode = root_irte.field.delivery_mode;
 	irq_msg.dest_logical = root_irte.field.dest_logical;
@@ -833,8 +834,8 @@ int iommu_map_interrupt(struct cell *cell, u16 device_id, unsigned int vector,
 	if (base_index < 0)
 		return base_index;
 
-	if ((vector >= VTD_INTERRUPT_LIMIT()) ||
-	    ((u32)base_index >= VTD_INTERRUPT_LIMIT() - vector))
+	if (vector >= VTD_INTERRUPT_LIMIT() ||
+	    base_index >= VTD_INTERRUPT_LIMIT() - vector)
 		return -ERANGE;
 
 	irte = int_remap_table[base_index + vector];
@@ -848,6 +849,14 @@ int iommu_map_interrupt(struct cell *cell, u16 device_id, unsigned int vector,
 		 * invalid data and cause false-positives.
 		 */
 		goto update_irte;
+
+	/*
+	 * If redirection hint is cleared, physical destination mode is used
+	 * effectively (destination mode bit is ignored, only a single CPU is
+	 * targeted). Fix up irq_msg so that apic_filter_irq_dest uses the
+	 * appropriate mode.
+	 */
+	irq_msg.dest_logical = irq_msg.dest_logical && irq_msg.redir_hint;
 
 	/* Validate delivery mode and destination(s). */
 	if (irq_msg.delivery_mode != APIC_MSG_DLVR_FIXED &&
@@ -888,7 +897,7 @@ void iommu_config_commit(struct cell *cell_added_removed)
 {
 	void *inv_queue = unit_inv_queue;
 	void *reg_base = dmar_reg_base;
-	unsigned int n;
+	int n;
 
 	if (cell_added_removed)
 		vtd_init_fault_nmi();
@@ -957,7 +966,7 @@ static int vtd_init_ir_emulation(unsigned int unit_no, void *reg_base)
 
 	root_cell.arch.vtd.ir_emulation = true;
 
-	base = system_config->platform_info.iommu_units[unit_no].base;
+	base = system_config->platform_info.x86.iommu_units[unit_no].base;
 	mmio_region_register(&root_cell, base, PAGE_SIZE,
 			     vtd_unit_access_handler, unit);
 
@@ -1019,7 +1028,7 @@ static int vtd_init(void)
 		return -ENOMEM;
 
 	for (n = 0; n < units; n++) {
-		unit = &system_config->platform_info.iommu_units[n];
+		unit = &system_config->platform_info.x86.iommu_units[n];
 		if (unit->type != JAILHOUSE_IOMMU_INTEL)
 			return trace_error(-EINVAL);
 

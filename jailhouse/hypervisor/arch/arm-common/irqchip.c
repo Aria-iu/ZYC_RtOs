@@ -22,14 +22,14 @@
 #include <asm/control.h>
 #include <asm/gic.h>
 #include <asm/irqchip.h>
-#include <asm/smccc.h>
+#include <asm/sysregs.h>
 
 #define for_each_irqchip(chip, config, counter)				\
 	for ((chip) = jailhouse_cell_irqchips(config), (counter) = 0;	\
 	     (counter) < (config)->num_irqchips;			\
 	     (chip)++, (counter)++)
 
-spinlock_t dist_lock;
+DEFINE_SPINLOCK(dist_lock);
 
 void *gicd_base;
 
@@ -193,7 +193,6 @@ void irqchip_handle_irq(void)
 			arch_handle_sgi(irq_id, count_event);
 			handled = true;
 		} else {
-			isb();
 			handled = arch_handle_phys_irq(irq_id, count_event);
 		}
 		count_event = 0;
@@ -227,9 +226,12 @@ void irqchip_set_pending(struct public_per_cpu *cpu_public, u16 irq_id)
 	bool local_injection = (this_cpu_public() == cpu_public);
 	const u16 sender = this_cpu_id();
 	unsigned int new_tail;
+	struct sgi sgi;
 
-	if (sdei_available) {
-		irqchip_send_sgi(cpu_public->cpu_id, irq_id);
+	if (!cpu_public) {
+		/* Injection via GICD */
+		mmio_write32(gicd_base + GICD_ISPENDR + (irq_id / 32) * 4,
+			     1 << (irq_id % 32));
 		return;
 	}
 
@@ -263,10 +265,17 @@ void irqchip_set_pending(struct public_per_cpu *cpu_public, u16 irq_id)
 	 * on the target CPU. In the other case, send SGI_INJECT to the target
 	 * CPU.
 	 */
-	if (local_injection)
+	if (local_injection) {
 		irqchip.enable_maint_irq(true);
-	else
-		irqchip_send_sgi(cpu_public->cpu_id, SGI_INJECT);
+	} else {
+		sgi.targets = irqchip_get_cpu_target(cpu_public->cpu_id);
+		sgi.cluster_id =
+			irqchip_get_cluster_target(cpu_public->cpu_id);
+		sgi.routing_mode = 0;
+		sgi.id = SGI_INJECT;
+
+		irqchip_send_sgi(&sgi);
+	}
 }
 
 void irqchip_inject_pending(void)
@@ -302,22 +311,9 @@ void irqchip_inject_pending(void)
 	irqchip.enable_maint_irq(false);
 }
 
-void irqchip_trigger_external_irq(u16 irq_id)
+int irqchip_send_sgi(struct sgi *sgi)
 {
-	/* Injection via GICD */
-	mmio_write32(gicd_base + GICD_ISPENDR + (irq_id / 32) * 4,
-		     1 << (irq_id % 32));
-}
-
-void irqchip_send_sgi(unsigned int cpu_id, u16 sgi_id)
-{
-	struct sgi sgi;
-
-	sgi.targets = irqchip_get_cpu_target(cpu_id);
-	sgi.cluster_id = irqchip_get_cluster_target(cpu_id);
-	sgi.routing_mode = 0;
-	sgi.id = sgi_id;
-	irqchip.send_sgi(&sgi);
+	return irqchip.send_sgi(sgi);
 }
 
 int irqchip_cpu_init(struct per_cpu *cpu_data)
@@ -425,10 +421,8 @@ static int irqchip_cell_init(struct cell *cell)
 		    chip->pin_base + sizeof(chip->pin_bitmap) * 8 >
 		    sizeof(cell->arch.irq_bitmap) * 8)
 			return trace_error(-EINVAL);
-		for (pos = 0; pos < ARRAY_SIZE(chip->pin_bitmap); pos++) {
-			cell->arch.irq_bitmap[chip->pin_base / 32 + pos] |=
-				chip->pin_bitmap[pos];
-		}
+		memcpy(&cell->arch.irq_bitmap[chip->pin_base / 32],
+		       chip->pin_bitmap, sizeof(chip->pin_bitmap));
 	}
 	/*
 	 * Permit direct access to all SGIs and PPIs except for those used by
@@ -514,10 +508,8 @@ void irqchip_config_commit(struct cell *cell_added_removed)
 		return;
 
 	for (n = 32; n < sizeof(cell_added_removed->arch.irq_bitmap) * 8; n++) {
-		if (irqchip_irq_in_cell(cell_added_removed, n) &&
-			(cell_added_removed != &root_cell))
+		if (irqchip_irq_in_cell(cell_added_removed, n))
 			irqchip.adjust_irq_target(cell_added_removed, n);
-
 		if (irqchip_irq_in_cell(&root_cell, n))
 			irqchip.adjust_irq_target(&root_cell, n);
 	}
@@ -536,9 +528,6 @@ static unsigned int irqchip_mmio_count_regions(struct cell *cell)
 
 static int irqchip_init(void)
 {
-	if (sdei_available)
-		printk("Using SDEI-based management interrupt\n");
-
 	/* Setup the SPI bitmap */
 	return irqchip_cell_init(&root_cell);
 }

@@ -16,8 +16,6 @@
 # Copyright (c) Linux kernel developers, 2014
 #
 
-include $(ALWAYS_COMPAT_MK)
-
 -include $(GEN_CONFIG_MK)
 
 LINUXINCLUDE := -I$(src)/arch/$(SRCARCH)/include \
@@ -26,13 +24,10 @@ LINUXINCLUDE := -I$(src)/arch/$(SRCARCH)/include \
 		-I$(src)/../include/arch/$(SRCARCH) \
 		-I$(src)/../include
 KBUILD_AFLAGS := -D__ASSEMBLY__ -fno-PIE
-KBUILD_CFLAGS := -g -Os -Werror -Wall -Wextra -Wno-unused-parameter \
-		 -Wstrict-prototypes -Wtype-limits \
+KBUILD_CFLAGS := -g -Os -Wall -Wstrict-prototypes -Wtype-limits \
 		 -Wmissing-declarations -Wmissing-prototypes \
-		 -Wnested-externs -Wshadow -Wredundant-decls \
-		 -Wundef -Wdeprecated \
 		 -fno-strict-aliasing -fno-pic -fno-common \
-		 -fno-stack-protector -fno-builtin-ffsl -ffreestanding \
+		 -fno-stack-protector -fno-builtin-ffsl \
 		 -D__LINUX_COMPILER_TYPES_H
 
 include $(src)/arch/$(SRCARCH)/Makefile
@@ -50,13 +45,7 @@ endif
 ccflags-$(CONFIG_JAILHOUSE_GCOV) += -fprofile-arcs -ftest-coverage
 clean-files += *.gcda arch/*/.*.gcda
 
-CLEAN_DIRS := arch/$(SRCARCH)/include/generated
-
-ifeq ($(shell test $(VERSION) -ge 5 && test $(PATCHLEVEL) -ge 4 && echo 1),1)
-clean-files += $(CLEAN_DIRS)
-else
-clean-dirs += $(CLEAN_DIRS)
-endif
+clean-dirs := arch/$(SRCARCH)/include/generated
 
 define sed-y
 	"/^=>/{s:=>#\(.*\):/* \1 */:; \
@@ -86,7 +75,7 @@ ASM_DEFINES_H := arch/$(SRCARCH)/include/generated/asm/asm-defines.h
 
 targets := $(ASM_DEFINES_H) arch/$(SRCARCH)/asm-defines.s
 
-$(obj)/arch/$(SRCARCH)/asm-defines.s: $(src)/arch/$(SRCARCH)/asm-defines.c FORCE
+$(obj)/arch/$(SRCARCH)/asm-defines.s: $(src)/arch/$(SRCARCH)/asm-defines.c
 	$(call if_changed_dep,cc_s_c)
 
 $(obj)/$(ASM_DEFINES_H): $(obj)/arch/$(SRCARCH)/asm-defines.s
@@ -98,12 +87,12 @@ ifeq ($(filter %/Makefile.clean,$(MAKEFILE_LIST)),)
 $(obj)/arch/$(SRCARCH): $(obj)/$(ASM_DEFINES_H)
 endif
 
-always-y :=
+always :=
 
 subdir-y := arch/$(SRCARCH)
 
 define BUILD_JAILHOUSE_template
-always-y += jailhouse$(1).bin
+always += jailhouse$(1).bin
 
 $$(obj)/arch/$$(SRCARCH)/lib$(1).a: $$(obj)/arch/$$(SRCARCH)
 	@true
@@ -116,13 +105,13 @@ HYPERVISOR$(1)_OBJS = $$(addprefix $$(obj)/,$$(hypervisor$(1)-y))
 LDFLAGS_hypervisor$(1).o := --whole-archive -T
 
 targets += hypervisor$(1).o
-$$(obj)/hypervisor$(1).o: $$(src)/hypervisor.lds $$(HYPERVISOR$(1)_OBJS) FORCE
+$$(obj)/hypervisor$(1).o: $$(src)/hypervisor.lds $$(HYPERVISOR$(1)_OBJS)
 	$$(call if_changed,ld)
 
 OBJCOPYFLAGS_jailhouse$(1).bin := -O binary -R .eh_frame
 
 targets += jailhouse$(1).bin
-$$(obj)/jailhouse$(1).bin: $$(obj)/hypervisor$(1).o FORCE
+$$(obj)/jailhouse$(1).bin: $$(obj)/hypervisor$(1).o
 	$$(call if_changed,objcopy)
 endef
 

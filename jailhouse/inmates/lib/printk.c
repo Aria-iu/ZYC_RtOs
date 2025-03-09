@@ -3,7 +3,7 @@
  *
  * Copyright (c) ARM Limited, 2014
  * Copyright (c) OTH Regensburg, 2018
- * Copyright (c) Siemens AG, 2013-2020
+ * Copyright (c) Siemens AG, 2013-2019
  *
  * Authors:
  *  Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
@@ -49,34 +49,29 @@
 static struct uart_chip *chip;
 static bool virtual_console;
 
-static void console_write_char(char c)
-{
-	if (chip) {
-		while (chip->is_busy(chip))
-			cpu_relax();
-		chip->write(chip, c);
-	}
-
-	if (virtual_console)
-		jailhouse_call_arg1(JAILHOUSE_HC_DEBUG_CONSOLE_PUTC, c);
-}
-
 static void console_write(const char *msg)
 {
-	char c;
+	char c = 0;
 
 	if (!chip && !virtual_console)
 		return;
 
 	while (1) {
-		c = *msg++;
+		if (c == '\n')
+			c = '\r';
+		else
+			c = *msg++;
 		if (!c)
 			break;
 
-		if (c == '\n')
-			console_write_char('\r');
+		if (chip) {
+			while (chip->is_busy(chip))
+				cpu_relax();
+			chip->write(chip, c);
+		}
 
-		console_write_char(c);
+		if (virtual_console)
+			jailhouse_call_arg1(JAILHOUSE_HC_DEBUG_CONSOLE_PUTC, c);
 	}
 }
 
@@ -207,12 +202,11 @@ static char *hex2str(unsigned long long value, char *buf,
 	return buf;
 }
 
-static char *align(char *p1, char *p0, unsigned int width, char fill)
+static char *align(char *p1, char *p0, unsigned long width, char fill)
 {
 	unsigned int n;
 
-	/* Note: p1 > p0 here */
-	if ((unsigned int)(p1 - p0) >= width)
+	if (p1 - p0 >= width)
 		return p1;
 
 	for (n = 1; p1 - n >= p0; n++)
