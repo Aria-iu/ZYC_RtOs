@@ -56,7 +56,7 @@ struct {
             .virt_start = 0xfe660000,
             .size = 0x100,
             .flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
-                     JAILHOUSE_MEM_IO | JAILHOUSE_MEM_ROOTSHARED,
+                     JAILHOUSE_MEM_IO | JAILHOUSE_MEM_IO_32,
         },
         //  UART4直通 (fe680000)
         {
