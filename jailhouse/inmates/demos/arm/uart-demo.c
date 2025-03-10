@@ -11,6 +11,7 @@
  */
 
 #include <inmate.h>
+#include "log.h"
 
 void inmate_main(void)
 {
@@ -18,9 +19,10 @@ void inmate_main(void)
 	/*
 	 * The cell config can set up a mapping to access UARTx instead of UART0
 	 */
+	log_init(LOG_INFO);
 	while(++i) {
 		for (j = 0; j < 100000000; j++);
-		printk("Hello %d from cell!\n", i);
+		LOGI("Hello %d from cell!\n", i);
 	}
 
 	/* lr should be 0, so a return will go back to the reset vector */

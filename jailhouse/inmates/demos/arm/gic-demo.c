@@ -61,6 +61,7 @@ void inmate_main(void)
 	irq_enable(TIMER_IRQ);
 
 	printk("Initializing the timer...\n");
+    // 每 1 秒 BEATS_PER_SEC 次 beat ， 每个 beat 有 ticks_per_beat 个 tick
 	ticks_per_beat = timer_get_frequency() / BEATS_PER_SEC;
 	expected_ticks = timer_get_ticks() + ticks_per_beat;
 	timer_start(ticks_per_beat);
