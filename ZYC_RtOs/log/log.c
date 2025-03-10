@@ -23,6 +23,15 @@ void ani_printk(const char *fmt, ...)
     va_end(ap);
 }
 
+void println(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    __vprintf(fmt, ap);
+    va_end(ap);
+    ani_printk("\n");
+}
+
 /**
 * @param[in]  log_level    日志级别
 * @param[in]  format       字符串

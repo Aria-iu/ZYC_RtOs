@@ -10,6 +10,7 @@ log_level_t g_log_level;
 
 void init_log(log_level_t log_level);
 void ani_printk(const char *fmt, ...);
+void println(const char *fmt, ...);
 void log(log_level_t level, const char *format, ...);
 void LOGD(const char *format,...);
 void LOGI(const char *format,...);
