@@ -20,7 +20,9 @@ INCLUDES := -I$(INMATES_LIB) \
 	    -I$(src)/lib/include \
 	    -I$(src)/../include \
 	    -I$(src)/../../ZYC_RtOs/log \
-	    -I$(src)/../../ZYC_RtOs/mem
+	    -I$(src)/../../ZYC_RtOs/mem \
+	    -I$(src)/../../ZYC_RtOs/include \
+	    -I$(src)/../../ZYC_RtOs/mem/fsc
 
 ifeq ($(subst arm64,arm,$(SRCARCH)),arm)
 INCLUDES += -I$(src)/../hypervisor/arch/arm-common/include
