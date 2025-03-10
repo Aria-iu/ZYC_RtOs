@@ -51,7 +51,7 @@ void log(log_level_t level, const char *format, ...){
         ani_printk("[ZYC_RtOs !!!!] : unknown log level : %d\n", level);
         break;
     }
-    __vprintk(fmt, ap);
+    __vprintk(format, ap);
     va_end(ap);
 }
 
@@ -60,7 +60,7 @@ void LOGD(const char *format,...){
     ani_printk("[ZYC_RtOs : DEBUG] : ");
     va_list ap;
     va_start(ap, format);
-    __vprintk(fmt, ap);
+    __vprintk(format, ap);
     va_end(ap);
 }
 
@@ -69,7 +69,7 @@ void LOGI(const char *format,...){
     ani_printk("[ZYC_RtOs : INFO] : ");
     va_list ap;
     va_start(ap, format);
-    __vprintk(fmt, ap);
+    __vprintk(format, ap);
     va_end(ap);
 }
 
@@ -78,7 +78,7 @@ void LOGW(const char *format,...){
     ani_printk("[ZYC_RtOs : WARNING] : ");
     va_list ap;
     va_start(ap, format);
-    __vprintk(fmt, ap);
+    __vprintk(format, ap);
     va_end(ap);
 }
 
@@ -87,7 +87,7 @@ void LOGE(const char *format,...){
     ani_printk("[ZYC_RtOs : ERROR] : ");
     va_list ap;
     va_start(ap, format);
-    __vprintk(fmt, ap);
+    __vprintk(format, ap);
     va_end(ap);
 }
 
@@ -96,6 +96,6 @@ void LOGF(const char *format,...){
     ani_printk("[ZYC_RtOs : FATAL] : ");
     va_list ap;
     va_start(ap, format);
-    __vprintk(fmt, ap);
+    __vprintk(format, ap);
     va_end(ap);
 }

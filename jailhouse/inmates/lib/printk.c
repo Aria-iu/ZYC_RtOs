@@ -75,7 +75,7 @@ static void console_write(const char *msg)
 	}
 }
 
-static void console_init(void)
+void console_init(void)
 {
 	struct jailhouse_console *console = &comm_region->console;
 	unsigned int n;
@@ -215,7 +215,7 @@ static char *align(char *p1, char *p0, unsigned long width, char fill)
 	return p0 + width;
 }
 
-static void __vprintk(const char *fmt, va_list ap)
+void __vprintk(const char *fmt, va_list ap)
 {
 	char buf[128];
 	char *p, *p0;
