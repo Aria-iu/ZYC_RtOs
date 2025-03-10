@@ -94,7 +94,7 @@ void map_range(void *start, unsigned long size, enum map_type map_type)
 void arch_mmu_enable(void)
 {
 	unsigned long mair, sctlr;
-	unsigned long inmate_size = 0x10000;
+	unsigned long inmate_size = 0x100000;
 	if (mem_conf_size >= inmate_size){
 		inmate_size = mem_conf_size;
 	}
