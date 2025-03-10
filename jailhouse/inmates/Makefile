@@ -18,7 +18,8 @@ export INMATES_LIB
 INCLUDES := -I$(INMATES_LIB) \
 	    -I$(src)/../include/arch/$(SRCARCH) \
 	    -I$(src)/lib/include \
-	    -I$(src)/../include
+	    -I$(src)/../include \
+	    -I$(src)/../../ZYC_RtOs/log
 
 ifeq ($(subst arm64,arm,$(SRCARCH)),arm)
 INCLUDES += -I$(src)/../hypervisor/arch/arm-common/include
