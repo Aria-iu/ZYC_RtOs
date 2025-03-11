@@ -37,6 +37,28 @@ uintptr_t g_memUsage = 0;
 uintptr_t g_memPeakUsage = 0;
 uintptr_t g_memStartAddr = 0;
 
+/*
+* FSC算法块控制头结构，注意各成员顺序是和其他算法保持一致偏移的，不能随便改动，保持ptNo和其他算法偏移一致
+struct TagFscMemCtrl {
+    struct TagFscMemCtrl *next;
+    // 块大小
+    uintptr_t size;
+    // 若前面相邻的物理块空闲，则此字段记录前面空闲块大小，否则为OS_FSC_MEM_PREV_USED
+    uintptr_t prevSize;
+    // 空闲时为上一个控制块地址
+    struct TagFscMemCtrl *prev;
+};
+ * */
+void dump_alloc_memregion(void){
+    // struct TagFscMemCtrl tmp;
+    LOGI("-----------------g_fscMemNodeList-----------------------------------\n");
+    for (U32 i = 0; i < OS_FSC_MEM_LAST_IDX; i++) {
+        LOGI("---- g_fscMemNodeList[%d]:\n", i);
+        LOGI("-------- size : %x\n", g_fscMemNodeList[i].size);
+        LOGI("-------- preSize : %x\n", g_fscMemNodeList[i].preSize);
+    }
+}
+
 struct TagFscMemCtrl *OsFscMemSearch(U32 size, U32 *idx)
 {
     U32 staIdx;

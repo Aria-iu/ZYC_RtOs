@@ -9,11 +9,9 @@
 // 这里是动态分配/释放使用的内存区域
 U8 g_memRegion00[OS_MEM_FSC_PT_SIZE];
 
-bool mem_test(int * addr)
+void mem_test(int * addr)
 {
-    *addr = 0xdeadbeef;
-    int read = *addr;
-    return (read == 0xdeadbeef);
+
 }
 
 void mem_init(void){

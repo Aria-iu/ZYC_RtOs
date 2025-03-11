@@ -7,6 +7,8 @@
 #include <inmate.h>
 #include <uart.h>
 
+log_level_t g_log_level;
+
 /**
  * @param[in]  log_level    需要设置的系统日志级别
  */

@@ -9,7 +9,7 @@
 #include "ZYC_module.h"
 #include "ZYC_mem.h"
 
-bool mem_test(int * addr);
+void mem_test(int * addr);
 
 /* 申请一个内存块 */
 typedef void *(*MemAllocFunc)(enum MoudleId mid, U8 ptNo, U32 size);

@@ -9,6 +9,17 @@
 #include "ZYC_module.h"
 #include "ZYC_mem.h"
 #include "mem.h"
+#include "log.h"
+
+extern struct TagMemFuncLib g_memArithAPI; /* 算法对应API */
+extern struct TagFscMemCtrl g_fscMemNodeList[OS_FSC_MEM_LAST_IDX];
+extern U32 g_fscMemBitMap;
+extern uintptr_t g_memTotalSize;
+extern uintptr_t g_memUsage;
+extern uintptr_t g_memPeakUsage;
+extern uintptr_t g_memStartAddr;
+
+void dump_alloc_memregion(void);
 
 /*
  * 模块内宏定义
@@ -32,6 +43,8 @@
 extern void *OsFscMemSplit(U8 ptNo, uintptr_t size, uintptr_t align,
                            struct TagFscMemCtrl *fscFreeListHead, U32 *bitMapPtr);
 extern U32 OsMemPtParaCheck(uintptr_t addr, uintptr_t size, uintptr_t *ptAddr);
+
+
 
 U32 OsGetLmb1(U32 value);
 

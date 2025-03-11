@@ -5,7 +5,7 @@
 #ifndef ZYC_MEM_H
 #define ZYC_MEM_H
 
-#include "ZYC_errno.h"
+#include "ZYC_error.h"
 #include "ZYC_module.h"
 
 /*
