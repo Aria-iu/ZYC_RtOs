@@ -44,7 +44,129 @@ extern U32 PRT_MemFree(U32 mid, void *addr);
 ![img.png](img.png)
 
 ## 内存测试
-测试用例：分配4字节变量 a 和 b，并释放 b 和 a 。
 
+### 测试用例1：分配4字节变量 a 和 b，并释放 b 和 a 。
+```c
+#include <inmate.h>
+#include "log.h"
+#include "mem.h"
+#include "fsc_mem.h"
+
+void inmate_main(void)
+{
+    log_init(LOG_INFO);
+    mem_detect();
+    mem_init();
+    LOGI("mem init end\n");
+
+
+    LOGI("fsc : g_fscMemBitMap is 0x%x\n",g_fscMemBitMap);
+    LOGI("fsc : g_memTotalSize is 0x%x\n",g_memTotalSize);
+    LOGI("fsc : g_memUsage is 0x%x\n",g_memUsage);
+    LOGI("fsc : g_memPeakUsage is 0x%x\n",g_memPeakUsage);
+    LOGI("fsc : g_memStartAddr is 0x%x\n",g_memStartAddr);
+    
+    int *a = PRT_MemAlloc(OS_MID_SYS,OS_MEM_DEFAULT_PT0,4);
+    if (a == 0){
+    	LOGE("fsc: alloc error\n");
+    }else{
+    	LOGI("fsc: alloc success , var a 's address is 0x%x",a);
+    }
+    
+    LOGI("fsc : g_fscMemBitMap is 0x%x\n",g_fscMemBitMap);
+    LOGI("fsc : g_memTotalSize is 0x%x\n",g_memTotalSize);
+    LOGI("fsc : g_memUsage is 0x%x\n",g_memUsage);
+    LOGI("fsc : g_memPeakUsage is 0x%x\n",g_memPeakUsage);
+    LOGI("fsc : g_memStartAddr is 0x%x\n",g_memStartAddr);
+
+    int *b = PRT_MemAlloc(OS_MID_SYS,OS_MEM_DEFAULT_PT0,4);
+        if (b == 0){
+			LOGE("fsc: alloc error\n");
+		}else{
+			LOGI("fsc: alloc success , var b 's address is 0x%x",b);
+		}
+	  	LOGI("fsc : g_fscMemBitMap is 0x%x\n",g_fscMemBitMap);
+	    LOGI("fsc : g_memTotalSize is 0x%x\n",g_memTotalSize);
+	    LOGI("fsc : g_memUsage is 0x%x\n",g_memUsage);
+		LOGI("fsc : g_memPeakUsage is 0x%x\n",g_memPeakUsage);
+		LOGI("fsc : g_memStartAddr is 0x%x\n",g_memStartAddr);
+
+	PRT_MemFree(OS_MID_SYS,b);
+	LOGI("After free b ----\n");
+	LOGI("fsc : g_fscMemBitMap is 0x%x\n",g_fscMemBitMap);
+	LOGI("fsc : g_memTotalSize is 0x%x\n",g_memTotalSize);
+	LOGI("fsc : g_memUsage is 0x%x\n",g_memUsage);
+	LOGI("fsc : g_memPeakUsage is 0x%x\n",g_memPeakUsage);
+	LOGI("fsc : g_memStartAddr is 0x%x\n",g_memStartAddr);
+
+	 PRT_MemFree(OS_MID_SYS,a);
+	 LOGI("After free a ---\n");
+	 LOGI("fsc : g_fscMemBitMap is 0x%x\n",g_fscMemBitMap);
+	 LOGI("fsc : g_memTotalSize is 0x%x\n",g_memTotalSize);
+	 LOGI("fsc : g_memUsage is 0x%x\n",g_memUsage);
+	 LOGI("fsc : g_memPeakUsage is 0x%x\n",g_memPeakUsage);
+	 LOGI("fsc : g_memStartAddr is 0x%x\n",g_memStartAddr);
+}
+```
 可以看出：分配 a 的地址是 0x123f8 ， b 是 0x123c8 。释放后， mem_usage 重新变为 0 。
+
 ![mem1.png](mem1.png)
+
+### 测试用例2：分配结构体 foo ，赋值其中的字段 a 和 b 。
+
+```c
+
+#include <inmate.h>
+#include "log.h"
+#include "mem.h"
+#include "fsc_mem.h"
+
+struct foo{
+	int a;
+	int b;
+};
+
+void inmate_main(void)
+{
+    log_init(LOG_INFO);
+    mem_detect();
+    mem_init();
+    LOGI("mem init end\n");
+
+
+    LOGI("fsc : g_fscMemBitMap is 0x%x\n",g_fscMemBitMap);
+    LOGI("fsc : g_memTotalSize is 0x%x\n",g_memTotalSize);
+    LOGI("fsc : g_memUsage is 0x%x\n",g_memUsage);
+    LOGI("fsc : g_memPeakUsage is 0x%x\n",g_memPeakUsage);
+    LOGI("fsc : g_memStartAddr is 0x%x\n",g_memStartAddr);
+    
+    int size = sizeof(struct foo);
+    LOGI("sizeof foo is %d\n",size);
+
+    struct foo * foo_ptr;
+    foo_ptr = (struct foo *)PRT_MemAlloc(OS_MID_SYS,OS_MEM_DEFAULT_PT0,size);
+    if (foo_ptr == 0){
+    	 LOGE("fsc: alloc error\n");
+    }else{
+    	LOGI("fsc: alloc success , var foo_ptr 's address is 0x%x",foo_ptr);
+    }
+    
+    LOGI("fsc : g_fscMemBitMap is 0x%x\n",g_fscMemBitMap);
+    LOGI("fsc : g_memTotalSize is 0x%x\n",g_memTotalSize);
+    LOGI("fsc : g_memUsage is 0x%x\n",g_memUsage);
+    LOGI("fsc : g_memPeakUsage is 0x%x\n",g_memPeakUsage);
+    LOGI("fsc : g_memStartAddr is 0x%x\n",g_memStartAddr);
+
+	foo_ptr -> a = 10;
+    foo_ptr -> b = 20;
+    LOGI("fsc: foo_ptr->a = %d\n", foo_ptr->a);
+    LOGI("fsc: foo_ptr->b = %d\n", foo_ptr->b);
+
+	LOGI("fsc : g_fscMemBitMap is 0x%x\n",g_fscMemBitMap);
+	LOGI("fsc : g_memTotalSize is 0x%x\n",g_memTotalSize);
+	LOGI("fsc : g_memUsage is 0x%x\n",g_memUsage);
+	LOGI("fsc : g_memPeakUsage is 0x%x\n",g_memPeakUsage);
+	LOGI("fsc : g_memStartAddr is 0x%x\n",g_memStartAddr);
+}
+```
+![mem2.png](mem2.png)
