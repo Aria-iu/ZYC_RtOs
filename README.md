@@ -1,4 +1,4 @@
-# FreeRTOS cell for the jailhouse hypervisor
+# ZYC_RtOs cell for the jailhouse hypervisor
 
 ## 日志模块
 [日志模块](./docs/log.md)
