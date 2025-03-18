@@ -98,6 +98,7 @@ void OsTskCreateTcbInit(uintptr_t stackPtr, struct TskInitParam *initParam,
     taskCb->origPriority = initParam->taskPrio;
     taskCb->taskEntry = initParam->taskEntry;
     taskCb->lastErr = 0;
+    memcpy(taskCb->name,initParam->name, OS_TSK_NAME_LEN);
 #if defined(OS_OPTION_RR_SCHED)
     if (initParam->policy == OS_TSK_SCHED_RR) {
         taskCb->policy = OS_TSK_SCHED_RR;
@@ -113,6 +114,31 @@ void OsTskCreateTcbInit(uintptr_t stackPtr, struct TskInitParam *initParam,
     return;
 }
 
+/*
+ * 描述：所有任务入口
+ */
+void OsTskEntry(TskHandle taskId)
+{
+//    struct TagTskCb *taskCb;
+//    uintptr_t intSave;
+//
+//    (void)taskId;
+//
+//    taskCb = RUNNING_TASK;
+//
+//    taskCb->taskEntry(taskCb->args[OS_TSK_PARA_0], taskCb->args[OS_TSK_PARA_1], taskCb->args[OS_TSK_PARA_2],
+//                      taskCb->args[OS_TSK_PARA_3]);
+
+    // 调度结束后会开中断，所以不需要自己添加开中断
+    // intSave = OsIntLock();
+
+    // OS_TASK_LOCK_DATA = 0;
+
+    /* PRT_TaskDelete不能关中断操作，否则可能会导致它核发SGI等待本核响应时死等 */
+    // OsIntRestore(intSave);
+
+    // OsTaskExit(taskCb);
+}
 
 /*
  * 描述：创建任务参数检查
@@ -172,12 +198,18 @@ U32 OsTaskCreateOnly(TskHandle *taskPid, struct TskInitParam *initParam)
 
     ret = OsTaskCreateParaCheck(taskPid, initParam);
     if (ret != OS_OK) {
+      	LOGI("error check : OsTaskCreateParaCheck");
         return ret;
     }
     // intSave = OsIntLock();
+    // 在此处得到一个空闲的TCB，taskCb指向它。
     ret = OsTaskCreateChkAndGetTcb(&taskCb);
+    LOGI("Get tcb : %x", *taskCb);
+    LOGI("Get tcb's node : %x", *taskCb.node);
+
     if (ret != OS_OK) {
         // OsIntRestore(intSave);
+        LOGI("error check : OsTaskCreateChkAndGetTcb");
         return ret;
     }
     taskId = taskCb->taskPid;
