@@ -6,6 +6,7 @@
 
 #include "ZYC_error.h"
 #include "ZYC_types.h"
+#include "ZYC_module.h"
 #include "task.h"
 
 /*
@@ -325,6 +326,71 @@
 #define OS_ERRNO_TSK_HAVE_MUTEX_SEM OS_ERRNO_BUILD_ERROR(OS_MID_TSK, 0x28)
 
 
+
+/*
+ * 任务或任务控制块状态标志。
+ *
+ * 任务控制块未被使用。
+ */
+#define OS_TSK_UNUSED 0x0000
+
+/*
+ * 任务或任务控制块状态标志。
+ *
+ * 任务控制块被使用,任务被创建。
+ */
+#define OS_TSK_INUSE 0x0001
+
+/*
+ * 任务或任务控制块状态标志。
+ *
+ * 任务被阻塞（等待信号）。
+ */
+#define OS_TSK_WAIT_SIGNAL 0x0002
+
+/*
+ * 任务或任务控制块状态标志。
+ *
+ * 任务被挂起。
+ */
+#define OS_TSK_SUSPEND 0x0004
+
+/*
+ * 任务或任务控制块状态标志。
+ *
+ * 任务被阻塞（等待信号量）。
+ */
+#define OS_TSK_PEND 0x0008
+
+/*
+ * 任务或任务控制块状态标志。
+ *
+ * 任务在等待信号量或者事件的标志。
+ */
+#define OS_TSK_TIMEOUT 0x0010
+
+/*
+ * 任务或任务控制块状态标志。
+ *
+ * 任务被延时。
+ */
+#define OS_TSK_DELAY 0x0020
+
+/*
+ * 任务或任务控制块状态标志。
+ *
+ * 任务已就绪，已加入就绪队列。
+ */
+#define OS_TSK_READY 0x0040
+
+/*
+ * 任务或任务控制块状态标志。
+ *
+ * 任务正运行，仍在就绪队列。
+ */
+#define OS_TSK_RUNNING 0x0080
+
+
 /*
  * 任务ID的类型定义。
  */
@@ -461,6 +527,8 @@ typedef U32(*TskDeleteHook)(TskHandle taskPid);
  * @see 无。
  */
 typedef U32(*TskSwitchHook)(TskHandle lastTaskPid, TskHandle nextTaskPid);
+
+typedef U32 (*TaskNameAddFunc)(U32 taskId, const char *name);
 
 /*
  * 任务栈信息的结构体定义。

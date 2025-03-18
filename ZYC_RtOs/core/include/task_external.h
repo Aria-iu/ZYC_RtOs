@@ -7,11 +7,27 @@
 
 #include "ZYC_types.h"
 #include "ZYC_task.h"
+#include "list_external.h"
+
+extern struct TagListObject g_tskCbFreeList;
+
+#define OS_TSK_STACK_CFG_BY_USER 1
+#define OS_TSK_STACK_CFG_BY_SYS  0
+
+#define OS_TSK_PARA_0   0
+#define OS_TSK_PARA_1   1
+#define OS_TSK_PARA_2   2
+#define OS_TSK_PARA_3   3
+
+#define OsIntUnLock() PRT_HwiUnLock()
+#define OsIntLock()   PRT_HwiLock()
+#define OsIntRestore(intSave) PRT_IntRestore(intSave)
 
 /*
  * 任务线程及进程控制块的结构体统一定义。
  */
 struct TagTskCb {
+  	struct TagListObject node;
     /* 当前任务的SP */
     void *stackPointer;
     /* 任务状态,后续内部全改成U32 */
@@ -42,5 +58,13 @@ struct TagTskCb {
     /* 任务恢复的时间点(单位Tick) */
     U64 expirationTick;
 };
+
+OS_SEC_ALW_INLINE INLINE U32 OsTaskCreateChkAndGetTcb(struct TagTskCb **taskCb)
+{
+    *taskCb = ((struct TagTskCb *)((uintptr_t)((&g_tskCbFreeList)->next);
+    // 成功，从空闲列表中移除
+    ListDelete((struct TagTskCb *)((uintptr_t)((&g_tskCbFreeList)->next);
+    return OS_OK;
+}
 
 #endif //TASK_EXTERNAL_H

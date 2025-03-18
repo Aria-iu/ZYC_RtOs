@@ -32,6 +32,11 @@
 
 #define OS_FPU_CONTEXT_REG_NUM 32
 
+#define OS_TSK_STACK_SIZE_ALIGN  16U
+
+/* 任务栈最小值 */
+#define OS_TSK_MIN_STACK_SIZE (ALIGN((0x1D0 + 0x10 + 0x4), 16))
+
 /*
  * 任务上下文的结构体定义。
  */
