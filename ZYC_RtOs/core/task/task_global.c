@@ -53,6 +53,21 @@ void dump_g_tskCbFreeList(void){
 	LOGI("g_tskCbFreeList's prev prev prev is %x\n",g_tskCbFreeList.prev->prev->prev);
 }
 
+extern struct TskContext;
+void dump_task(int i){
+    LOGI("TCB'node: %x\n",g_tskCbArray[i].node);
+    LOGI("TCB'stackPointer: %x\n",g_tskCbArray[i].stackPointer);
+    LOGI("TCB'stackSize: %x\n",g_tskCbArray[i].stackSize);
+    LOGI("TCB'taskPid: %x\n",g_tskCbArray[i].taskPid);
+    LOGI("TCB'priority: %x\n",g_tskCbArray[i].priority);
+    LOGI("TCB'stackCfgFlg: %x\n",g_tskCbArray[i].stackCfgFlg);
+    LOGI("TCB'topOfStack: %x\n",g_tskCbArray[i].topOfStack);
+    LOGI("TCB'taskEntry: %x\n",g_tskCbArray[i].taskEntry);
+    LOGI("TCB'name is: %s\n",g_tskCbArray[i].name);
+    struct TskContext *TEMP_stack = (struct TskContext *)g_tskCbArray[i].stackPointer;
+    LOGI("x01 is %x\n",TEMP_stack->x01);
+}
+
 /*
  * 描述：任务初始化
  */

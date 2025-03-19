@@ -83,6 +83,7 @@ struct TskContext {
     uintptr_t x02;
     uintptr_t x01;
     uintptr_t x00;
+    uintptr_t sp;
 };
 
 /*

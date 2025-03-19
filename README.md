@@ -4,3 +4,5 @@
 [日志模块](./docs/log.md)
 ## 内存管理模块
 [内存模块](./docs/mem.md)
+## 任务管理模块
+[任务初始化模块](./docs/task-init.md)
