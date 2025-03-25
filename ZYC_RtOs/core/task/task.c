@@ -15,7 +15,7 @@ extern void dump_task(int index);
 struct TskContext g_current_context;
 
 void save_current_context(struct TskContext* context) {
-    asm volatile("mrs %0, elr_el" : "=r"(context->elr));
+    asm volatile("mrs %0, elr_el1" : "=r"(context->elr));
     asm volatile("mrs %0, spsr_el1" : "=r"(context->spsr));
     asm volatile("mrs %0, far_el1" : "=r"(context->far));
     asm volatile("mrs %0, esr_el1" : "=r"(context->esr));
@@ -127,4 +127,5 @@ void OsMainSchedule(void)
     print_context(g_current_context);
     print_context(g_tskCbArray[idx].stackPointer);
     OsTskContextLoad(g_tskCbArray[idx].stackPointer,((struct TskContext*)g_tskCbArray[idx].stackPointer)->x30);
+	// LOGI("ret???");
 }

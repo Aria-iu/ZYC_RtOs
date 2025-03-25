@@ -177,8 +177,6 @@ void inmate_main(void)
     dump_my_task_status();
 
 }
-
-
 ```
 
 ```

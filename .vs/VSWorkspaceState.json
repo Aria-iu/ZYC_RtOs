@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\docs",
+    "\\ZYC_RtOs\\arch",
+    "\\ZYC_RtOs\\arch\\armv8",
+    "\\ZYC_RtOs\\core",
+    "\\ZYC_RtOs\\core\\include",
+    "\\ZYC_RtOs\\core\\task",
+    "\\ZYC_RtOs\\include",
+    "\\ZYC_RtOs\\include\\armv8"
+  ],
+  "SelectedNode": "\\docs\\task-switch.md",
+  "PreviewInSolutionExplorer": false
+}
