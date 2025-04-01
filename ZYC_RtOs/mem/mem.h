@@ -8,8 +8,12 @@
 #include "ZYC_types.h"
 #include "ZYC_module.h"
 #include "ZYC_mem.h"
+#include "mem_config.h"
+
+extern U8 g_memRegion00[OS_MEM_FSC_PT_SIZE];
 
 void mem_test(int * addr);
+void mem_detect(void);
 
 /* 申请一个内存块 */
 typedef void *(*MemAllocFunc)(enum MoudleId mid, U8 ptNo, U32 size);

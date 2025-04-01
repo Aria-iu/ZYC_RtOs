@@ -19,10 +19,13 @@ INCLUDES := -I$(INMATES_LIB) \
 	    -I$(src)/../include/arch/$(SRCARCH) \
 	    -I$(src)/lib/include \
 	    -I$(src)/../include \
-	    -I$(src)/../../ZYC_RtOs/log \
-	    -I$(src)/../../ZYC_RtOs/mem \
-	    -I$(src)/../../ZYC_RtOs/include \
-	    -I$(src)/../../ZYC_RtOs/mem/fsc
+		-I$(src)/../../ZYC_RtOs/log \
+		-I$(src)/../../ZYC_RtOs/mem \
+		-I$(src)/../../ZYC_RtOs/include \
+		-I$(src)/../../ZYC_RtOs/mem/fsc \
+		-I$(src)/../../ZYC_RtOs/core/include \
+		-I$(src)/../../ZYC_RtOs/include/armv8 \
+	       -I$(src)/../../ZYC_RtOs/include/armv8 	
 
 ifeq ($(subst arm64,arm,$(SRCARCH)),arm)
 INCLUDES += -I$(src)/../hypervisor/arch/arm-common/include

@@ -1,7 +1,3 @@
-//
-// Created by zyc on 25-3-10.
-//
-
 #ifndef PRINTK_H
 #define PRINTK_H
 #include <stdarg.h>

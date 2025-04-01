@@ -38,7 +38,6 @@
 
 #include <inmate.h>
 #include <asm/sysregs.h>
-#include "mem_config.h"
 
 static u64 __attribute__((aligned(4096)))
 	page_directory[JAILHOUSE_INMATE_MEM_PAGE_DIR_LEN];
@@ -94,11 +93,8 @@ void map_range(void *start, unsigned long size, enum map_type map_type)
 void arch_mmu_enable(void)
 {
 	unsigned long mair, sctlr;
-	unsigned long inmate_size = 0x100000;
-	if (mem_conf_size >= inmate_size){
-		inmate_size = mem_conf_size;
-	}
-	map_range((void*)CONFIG_INMATE_BASE, inmate_size, MAP_CACHED);
+
+	map_range((void*)CONFIG_INMATE_BASE, 0x100000, MAP_CACHED);
 	map_range((void*)COMM_REGION_BASE, PAGE_SIZE, MAP_CACHED);
 
 	/*

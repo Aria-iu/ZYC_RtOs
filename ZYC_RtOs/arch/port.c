@@ -82,7 +82,6 @@ void *OsTskContextInit(U32 taskID, U32 stackSize, uintptr_t *topStack, uintptr_t
     stack->elr = funcTskEntry;
     stack->esr = 0;
     stack->far = 0;
-    // ARMV8_SPSR_INIT_VALUE   0x305U
     stack->spsr = ARMV8_SPSR_INIT_VALUE;    // EL1_SP1 | D | A | I | F
     return stack;
 }

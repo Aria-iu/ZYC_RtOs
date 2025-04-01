@@ -2,8 +2,8 @@
 // Created by zyc on 25-3-17.
 //
 
-#ifndef TASK_H
-#define TASK_H
+#ifndef ARMV8_TASK_H
+#define ARMV8_TASK_H
 
 #include "ZYC_types.h"
 

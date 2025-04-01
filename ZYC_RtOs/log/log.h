@@ -6,6 +6,8 @@
 #define LOG_H
 #include "log_level.h"
 
+//log_level_t g_log_level;
+
 void init_log(log_level_t log_level);
 void ani_printk(const char *fmt, ...);
 void println(const char *fmt, ...);

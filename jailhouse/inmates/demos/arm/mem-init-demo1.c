@@ -20,5 +20,13 @@ void inmate_main(void)
 {
     log_init(LOG_INFO);
     mem_detect();
+    mem_init();
+    LOGI("mem init end");
+
+    LOGI("fsc : g_fscMemBitMap is 0x%x\n",g_fscMemBitMap);
+    LOGI("fsc : g_memTotalSize is 0x%x\n",g_memTotalSize);
+    LOGI("fsc : g_memUsage is 0x%x\n",g_memUsage);
+    LOGI("fsc : g_memPeakUsage is 0x%x\n",g_memPeakUsage);
+    LOGI("fsc : g_memStartAddr is 0x%x\n",g_memStartAddr);
 }
 

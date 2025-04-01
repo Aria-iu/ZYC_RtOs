@@ -5,6 +5,9 @@
 #ifndef ZYC_TYPES_H
 #define ZYC_TYPES_H
 
+// #include <stddef.h>
+ #include <stdint.h>
+// #include <stdbool.h>
     // typedef unsigned long uintptr_t;
     typedef unsigned char U8;
     typedef unsigned short U16;

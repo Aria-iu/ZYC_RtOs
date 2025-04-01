@@ -57,13 +57,14 @@ struct TagTskCb {
     U32 lastErr;
     /* 任务恢复的时间点(单位Tick) */
     U64 expirationTick;
+    uintptr_t saveAllocStack;
 };
 
 OS_SEC_ALW_INLINE INLINE U32 OsTaskCreateChkAndGetTcb(struct TagTskCb **taskCb)
 {
-    *taskCb = ((struct TagTskCb *)((uintptr_t)((&g_tskCbFreeList)->next);
+    *taskCb = ((struct TagTskCb *)((uintptr_t)((&g_tskCbFreeList)->next)));
     // 成功，从空闲列表中移除
-    ListDelete((struct TagTskCb *)((uintptr_t)((&g_tskCbFreeList)->next);
+    ListDelete((struct TagTskCb *)((uintptr_t)((&g_tskCbFreeList)->next)));
     return OS_OK;
 }
 

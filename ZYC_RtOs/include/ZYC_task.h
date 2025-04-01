@@ -439,7 +439,7 @@ struct TskInfo{
     /* 栈是否溢出 */
     // bool ovf;
     /* 任务上下文 */
-    struct TskContext context;
+//    struct TskContext context;
 };
 
 /*
@@ -610,6 +610,6 @@ struct TskInitParam {
  * @see PRT_TaskDelete | PRT_TaskCreateHookAdd | PRT_TaskCreate
  */
 extern U32 PRT_TaskCreate(TskHandle *taskPid, struct TskInitParam *initParam);
-
-
+void TskExit(int Tskid);
+void load_current_context(struct TskContext* context);
 #endif

@@ -56,8 +56,3 @@ void PRT_HwiRestore(uintptr_t intSave)
     }
     return;
 }
-
-void what(void){
-
-
-}

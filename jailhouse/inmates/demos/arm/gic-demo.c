@@ -1,6 +1,16 @@
-//
-// Created by zyc on 25-3-10.
-//
+/*
+ * Jailhouse, a Linux-based partitioning hypervisor
+ *
+ * Copyright (c) ARM Limited, 2014
+ * Copyright (c) Siemens AG, 2014-2017
+ *
+ * Authors:
+ *  Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+ *  Jan Kiszka <jan.kiszka@siemens.com>
+ *
+ * This work is licensed under the terms of the GNU GPL, version 2.  See
+ * the COPYING file in the top-level directory.
+ */
 
 #include <inmate.h>
 #include <gic.h>
@@ -51,7 +61,6 @@ void inmate_main(void)
 	irq_enable(TIMER_IRQ);
 
 	printk("Initializing the timer...\n");
-    // 每 1 秒 BEATS_PER_SEC 次 beat ， 每个 beat 有 ticks_per_beat 个 tick
 	ticks_per_beat = timer_get_frequency() / BEATS_PER_SEC;
 	expected_ticks = timer_get_ticks() + ticks_per_beat;
 	timer_start(ticks_per_beat);

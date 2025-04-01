@@ -5,13 +5,20 @@
 #include "mem_config.h"
 #include "ZYC_types.h"
 #include "fsc_mem.h"
+#include "log.h"
 
 // 这里是动态分配/释放使用的内存区域
 U8 g_memRegion00[OS_MEM_FSC_PT_SIZE];
 
 void mem_test(int * addr)
 {
+//    *addr = 0xdeadbeef;
+//    int read = *addr;
+//    return (read == 0xdeadbeef);
+}
 
+void mem_detect(void){
+    LOGI("System alloc mem : begin %x , end %x\n",g_memRegion00,g_memRegion00+OS_MEM_FSC_PT_SIZE);
 }
 
 void mem_init(void){

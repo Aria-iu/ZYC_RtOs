@@ -14,14 +14,13 @@ extern struct TagTskCb *g_tskCbArray;
 extern void dump_task(int index);
 
 struct TskContext g_current_context;
-int g_running_task_idx;
+
 void save_current_context(struct TskContext* context) {
 	asm volatile("mrs %0, elr_el1" : "=r"(context->elr));
  asm volatile("mrs %0, spsr_el1" : "=r"(context->spsr));
 asm volatile("mrs %0, far_el1" : "=r"(context->far));
 asm volatile("mrs %0, esr_el1" : "=r"(context->esr));
 	context->xzr = 0;
-	asm volatile("mov %0, sp" : "=r"(context->sp));
 			        asm volatile("mov %0, x0" : "=r"(context->x00));
 				    asm volatile("mov %0, x1" : "=r"(context->x01));
 				        asm volatile("mov %0, x2" : "=r"(context->x02));
@@ -95,49 +94,6 @@ void print_context(struct TskContext* context) {
 																		    LOGI("  x02  : 0x%lx\n", context->x02);
 																		        LOGI("  x01  : 0x%lx\n", context->x01);
 																			    LOGI("  x00  : 0x%lx\n", context->x00);
-																			    LOGI("  SP   : 0x%lx\n", context->sp);
-}
-
-void load_current_context(struct TskContext* context) {
-	    asm volatile("msr elr_el1, %0" : : "r"(context->elr));
-	        asm volatile("msr spsr_el1, %0" : : "r"(context->spsr));
-		    asm volatile("msr far_el1, %0" : : "r"(context->far));
-		        asm volatile("msr esr_el1, %0" : : "r"(context->esr));
-
-			    asm volatile("mov x0, %0" : : "r"(context->x00));
-			        asm volatile("mov x1, %0" : : "r"(context->x01));
-				    asm volatile("mov x2, %0" : : "r"(context->x02));
-				        asm volatile("mov x3, %0" : : "r"(context->x03));
-					    asm volatile("mov x4, %0" : : "r"(context->x04));
-					        asm volatile("mov x5, %0" : : "r"(context->x05));
-						    asm volatile("mov x6, %0" : : "r"(context->x06));
-						        asm volatile("mov x7, %0" : : "r"(context->x07));
-							    asm volatile("mov x8, %0" : : "r"(context->x08));
-							        asm volatile("mov x9, %0" : : "r"(context->x09));
-								    asm volatile("mov x10, %0" : : "r"(context->x10));
-								        asm volatile("mov x11, %0" : : "r"(context->x11));
-									    asm volatile("mov x12, %0" : : "r"(context->x12));
-									        asm volatile("mov x13, %0" : : "r"(context->x13));
-										    asm volatile("mov x14, %0" : : "r"(context->x14));
-										        asm volatile("mov x15, %0" : : "r"(context->x15));
-											    asm volatile("mov x16, %0" : : "r"(context->x16));
-											        asm volatile("mov x17, %0" : : "r"(context->x17));
-												    asm volatile("mov x18, %0" : : "r"(context->x18));
-												        asm volatile("mov x19, %0" : : "r"(context->x19));
-													    asm volatile("mov x20, %0" : : "r"(context->x20));
-													        asm volatile("mov x21, %0" : : "r"(context->x21));
-														    asm volatile("mov x22, %0" : : "r"(context->x22));
-														        asm volatile("mov x23, %0" : : "r"(context->x23));
-															    asm volatile("mov x24, %0" : : "r"(context->x24));
-															        asm volatile("mov x25, %0" : : "r"(context->x25));
-																    asm volatile("mov x26, %0" : : "r"(context->x26));
-																        asm volatile("mov x27, %0" : : "r"(context->x27));
-																	    asm volatile("mov x28, %0" : : "r"(context->x28));
-																	        asm volatile("mov x29, %0" : : "r"(context->x29));
-																		    asm volatile("mov x30, %0" : : "r"(context->x30));
-
-																		        asm volatile("mov sp, %0" : : "r"(context->sp));
-
 }
 
 int find_tcb_aviliable(void){
@@ -147,11 +103,10 @@ int find_tcb_aviliable(void){
 					            return i;
 						            }
 				    }
-		return 0;
+		return i;
 }
 
 
-extern void  TestTaskEntry2(void);
 
 void OsMainSchedule(void)
 {
@@ -173,33 +128,13 @@ void OsMainSchedule(void)
 	 }*/
 
     save_current_context(&g_current_context);
-    // we can run this sche once and again and again ...
     int idx = find_tcb_aviliable();
-    if (idx == 0||idx>3){
-    	LOGI("no more tasks in system , halt");
-	while(1){
-		
-	}
-    }
-    g_running_task_idx = idx;
-
     LOGI("find index is %d\n",idx);
-    LOGI("g_running_task_idx is %d\n",g_running_task_idx);
     //print_context(g_tskCbArray[idx].stackPointer);
    // LOGI("sys_stack_top is 0x%x\n",stack_top);
- //   print_context((struct TskContext*)&g_current_context);
+    print_context((struct TskContext*)&g_current_context);
     //print_context((struct TskContext*)g_tskCbArray[idx].stackPointer);
-//    LOGI("Here??\n");
-LOGI("let's go to task\n");
-//if(idx==1){idx = 2;}
-LOGI("g_tskCbArray[g_running_task_idx].stackPointer is 0x%x\n",g_tskCbArray[g_running_task_idx].stackPointer);
-if(idx==2){
-	((struct TskContext*)g_tskCbArray[g_running_task_idx].stackPointer)->x30 = TestTaskEntry2;
-}
-LOGI("g_tskCbArray[g_running_task_idx].stackPointer->x30 is 0x%x\n",((struct TskContext*)g_tskCbArray[g_running_task_idx].stackPointer)->x30);
-   OsTskContextLoad(g_tskCbArray[g_running_task_idx].stackPointer,((struct TskContext*)g_tskCbArray[g_running_task_idx].stackPointer)->x30);
-//load_current_context(&g_current_context);
-// gona not come to here;
-LOGI("?????????------\n");
+    OsTskContextLoad(g_tskCbArray[idx].stackPointer,((struct TskContext*)g_tskCbArray[idx].stackPointer)->x30);
+    LOGI("Here??\n");	
 	 }
 

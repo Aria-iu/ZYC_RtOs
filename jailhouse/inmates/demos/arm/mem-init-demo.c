@@ -20,5 +20,7 @@ void inmate_main(void)
 {
     log_init(LOG_INFO);
     mem_detect();
+    mem_init();
+    LOGI("mem init end");
 }
 

@@ -7,4 +7,3 @@
 OsTskContextLoad:
     mov sp,x0
     blr x1
-
