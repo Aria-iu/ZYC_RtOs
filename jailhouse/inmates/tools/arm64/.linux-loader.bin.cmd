@@ -1,0 +1,1 @@
+cmd_/home/ubuntu/ZYC_RtOs/jailhouse/inmates/tools/arm64/linux-loader.bin := objcopy -O binary  /home/ubuntu/ZYC_RtOs/jailhouse/inmates/tools/arm64/linux-loader-linked.o /home/ubuntu/ZYC_RtOs/jailhouse/inmates/tools/arm64/linux-loader.bin

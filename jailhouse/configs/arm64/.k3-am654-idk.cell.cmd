@@ -1,0 +1,1 @@
+cmd_/home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/k3-am654-idk.cell := objcopy -O binary  /home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/k3-am654-idk.o /home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/k3-am654-idk.cell

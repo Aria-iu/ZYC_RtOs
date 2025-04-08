@@ -1,0 +1,4 @@
+inmate-k3-am654-idk.o: \
+ /home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/dts/inmate-k3-am654-idk.dts \
+ scripts/dtc/include-prefixes/dt-bindings/interrupt-controller/arm-gic.h \
+ scripts/dtc/include-prefixes/dt-bindings/interrupt-controller/irq.h

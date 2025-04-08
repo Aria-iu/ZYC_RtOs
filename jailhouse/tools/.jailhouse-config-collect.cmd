@@ -1,0 +1,1 @@
+cmd_/home/ubuntu/ZYC_RtOs/jailhouse/tools/jailhouse-config-collect := 	/home/ubuntu/ZYC_RtOs/jailhouse/tools/jailhouse-config-create -g /home/ubuntu/ZYC_RtOs/jailhouse/tools/jailhouse-config-collect; chmod +x /home/ubuntu/ZYC_RtOs/jailhouse/tools/jailhouse-config-collect

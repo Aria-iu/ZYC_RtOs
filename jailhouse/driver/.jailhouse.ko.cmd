@@ -1,0 +1,1 @@
+cmd_/home/ubuntu/ZYC_RtOs/jailhouse/driver/jailhouse.ko := ld -r  -EL  -maarch64elf  --build-id  -T ./scripts/module-common.lds -T ./arch/arm64/kernel/module.lds -o /home/ubuntu/ZYC_RtOs/jailhouse/driver/jailhouse.ko /home/ubuntu/ZYC_RtOs/jailhouse/driver/jailhouse.o /home/ubuntu/ZYC_RtOs/jailhouse/driver/jailhouse.mod.o;  true

@@ -1,0 +1,1 @@
+cmd_/home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/zynqmp-zcu102-linux-demo-2.cell := objcopy -O binary  /home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/zynqmp-zcu102-linux-demo-2.o /home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/zynqmp-zcu102-linux-demo-2.cell

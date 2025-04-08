@@ -1,0 +1,1 @@
+cmd_/home/ubuntu/ZYC_RtOs/jailhouse/pyjailhouse/pci_defs.py := 	/home/ubuntu/ZYC_RtOs/jailhouse/scripts/gen_pci_defs.sh /home/ubuntu/ZYC_RtOs/jailhouse/include/jailhouse/pci_defs.h > /home/ubuntu/ZYC_RtOs/jailhouse/pyjailhouse/pci_defs.py

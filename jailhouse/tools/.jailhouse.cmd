@@ -1,0 +1,1 @@
+cmd_/home/ubuntu/ZYC_RtOs/jailhouse/tools/jailhouse := gcc -g -O3 -DLIBEXECDIR=\"/usr/local/libexec\" -Wall -Wextra -Wmissing-declarations -Wmissing-prototypes -Werror -D__LINUX_COMPILER_TYPES_H -DJAILHOUSE_VERSION=\"v0.12\"   -fno-pie  -no-pie      /home/ubuntu/ZYC_RtOs/jailhouse/tools/jailhouse.o -o /home/ubuntu/ZYC_RtOs/jailhouse/tools/jailhouse

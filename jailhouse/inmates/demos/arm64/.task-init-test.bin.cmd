@@ -1,0 +1,1 @@
+cmd_/home/ubuntu/ZYC_RtOs/jailhouse/inmates/demos/arm64/task-init-test.bin := objcopy -O binary  /home/ubuntu/ZYC_RtOs/jailhouse/inmates/demos/arm64/task-init-test-linked.o /home/ubuntu/ZYC_RtOs/jailhouse/inmates/demos/arm64/task-init-test.bin

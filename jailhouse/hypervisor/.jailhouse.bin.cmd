@@ -1,0 +1,1 @@
+cmd_/home/ubuntu/ZYC_RtOs/jailhouse/hypervisor/jailhouse.bin := objcopy  -O binary -R .eh_frame /home/ubuntu/ZYC_RtOs/jailhouse/hypervisor/hypervisor.o /home/ubuntu/ZYC_RtOs/jailhouse/hypervisor/jailhouse.bin

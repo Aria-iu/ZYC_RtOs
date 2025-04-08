@@ -1,0 +1,1 @@
+cmd_/home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/espressobin-inmate-demo.cell := objcopy -O binary  /home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/espressobin-inmate-demo.o /home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/espressobin-inmate-demo.cell

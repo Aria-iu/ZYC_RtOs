@@ -1,0 +1,4 @@
+inmate-macchiatobin.o: \
+ /home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/dts/inmate-macchiatobin.dts \
+ scripts/dtc/include-prefixes/dt-bindings/interrupt-controller/arm-gic.h \
+ scripts/dtc/include-prefixes/dt-bindings/interrupt-controller/irq.h

@@ -1,0 +1,1 @@
+cmd_/home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/miriac-sbc-ls1046a-inmate-demo.cell := objcopy -O binary  /home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/miriac-sbc-ls1046a-inmate-demo.o /home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/miriac-sbc-ls1046a-inmate-demo.cell

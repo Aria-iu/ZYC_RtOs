@@ -1,0 +1,1 @@
+cmd_/home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/macchiatobin.cell := objcopy -O binary  /home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/macchiatobin.o /home/ubuntu/ZYC_RtOs/jailhouse/configs/arm64/macchiatobin.cell
