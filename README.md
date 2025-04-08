@@ -10,3 +10,6 @@
 [任务调度模块](./docs/task-switch.md)
 ## 中断管理模块
 [中断管理模块](./docs/interrupt.md)
+
+## 共享内存模块
+[共享内存测试模块](./docs/ivshmem_1.md)
