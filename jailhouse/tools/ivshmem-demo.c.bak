@@ -44,11 +44,6 @@ static inline void mmio_write32(void *address, uint32_t value)
         *(volatile uint32_t *)address = value;
 }
 
-static void get_message_from_inmate1(void) {
-	char *message = (char *)in + 0x2000; // 消息存储在in@0x2000
-   	printf("Received message from Inmate: %s\n", message);	
-} 
-
 static void print_shmem(void)
 {
 	printf("state[0] = %d\n", state[0]);
@@ -139,12 +134,11 @@ int main(int argc, char *argv[])
 			ret = read(fds[0].fd, &int_count, sizeof(int_count));
 			if (ret != sizeof(int_count))
 				error(1, errno, "read(uio)");
-			printf("Host rw[id]'s id is %d\n",id);
-			// rw[id] = int_count;
-			// out[0] = int_count * 10;
-		//	printf("\nInterrupt #%d\n", int_count);
+
+			rw[id] = int_count;
+			out[0] = int_count * 10;
+			printf("\nInterrupt #%d\n", int_count);
 			print_shmem();
-			get_message_from_inmate1();
 
 			mmio_write32(&regs->int_control, 1);
 		}

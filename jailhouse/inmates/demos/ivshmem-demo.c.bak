@@ -94,14 +94,8 @@ static void irq_handler(unsigned int irq)
 		value = irq_counter[dev.id];
 	else
 		value = irq_counter[0];
-	printk("dev.id is %d\n",dev.id);
 	dev.rw_section[dev.id] = value;
-	// dev.out_section[0] = 114514;
-	// 将文字写入输出区域
-	char *message = "Hi!\n";
-	int message_length = strlen(message) + 1; // 包括null终止符
-	memcpy((void *)dev.out_section, message, message_length);
-	
+	dev.out_section[0] = value * 10;
 	printk("\nIVSHMEM: got interrupt %d (#%d)\n", n, irq_counter[n]);
 	print_shmem(&dev);
 }
@@ -192,7 +186,7 @@ void inmate_main(void)
 {
 	unsigned int class_rev;
 	int bdf;
-	char * message = "hELLO FROM InATE!\n";
+
 	irq_base = cmdline_parse_int("irq_base", DEFAULT_IRQ_BASE);
 
 	irq_init(irq_handler);
@@ -223,11 +217,8 @@ void inmate_main(void)
 	mmio_write32(&dev.registers->state, dev.id + 1);
 	dev.rw_section[dev.id] = 0;
 	dev.out_section[0] = 0;
-//	memcpy((void* )dev.out_section,message,19);
-//	memcpy((void* )dev.rw_section,message,19);
-//	printk("IVSHMEM: Sent message to host\n");
 	print_shmem(&dev);
-	send_irq(&dev);
+
 	enable_irqs();
 
 	while (1) {
