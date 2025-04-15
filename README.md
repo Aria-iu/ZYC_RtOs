@@ -13,3 +13,8 @@
 
 ## 共享内存模块
 [共享内存测试模块](./docs/ivshmem_1.md)
+
+[共享内存通信模块](./docs/shmem.md)
+
+## 多 RTOS 启动
+[混合关键性系统扩展](./docs/multicore.md)
