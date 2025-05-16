@@ -7,7 +7,7 @@ ENTRY(_start)
 
 SECTIONS {
 	/* jailhouse arm inmates have to start at address zero */
-        . = 0x1000;
+        . = 0x0;
         .boot           : { *(.boot) }
 
         . = ALIGN(4096);
