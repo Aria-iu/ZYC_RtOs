@@ -171,14 +171,12 @@ Started cell "inmate-demo-1"
 [ZYC_RtOs : INFO] : g_tskCbArray[g_running_task_idx].stackPointer is 0x12168
 [ZYC_RtOs : INFO] : g_tskCbArray[g_running_task_idx].stackPointer->x30 is 0x14008
 [ZYC_RtOs : INFO] : This is task1 test's entry!!!
-[ZYC_RtOs : INFO] : How is that run ???
 [ZYC_RtOs : INFO] : find index is 2
 [ZYC_RtOs : INFO] : g_running_task_idx is 2
 [ZYC_RtOs : INFO] : let's go to task
 [ZYC_RtOs : INFO] : g_tskCbArray[g_running_task_idx].stackPointer is 0x11f38
 [ZYC_RtOs : INFO] : g_tskCbArray[g_running_task_idx].stackPointer->x30 is 0x14040
 [ZYC_RtOs : INFO] : This is task2 test's entry!!!
-[ZYC_RtOs : INFO] : How is that run ???
 [ZYC_RtOs : INFO] : no more tasks in system , halt
 ```
 可见，在创建了两个任务之后，进入调度函数，ZYC_RtOs 会依次执行所有创建的任务。任务执行完后，系统停机等待。
