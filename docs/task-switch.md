@@ -141,13 +141,7 @@ void inmate_main(void)
 Started cell "inmate-demo-1"
 [ZYC_RtOs : INFO] : System alloc mem : begin 2590 , end 12590
 [ZYC_RtOs : INFO] : task init begin
-[ZYC_RtOs : INFO] : fsc : g_fscMemBitMap is 0x10001
-[ZYC_RtOs : INFO] : fsc : g_memTotalSize is 0xffe0
-[ZYC_RtOs : INFO] : fsc : g_memUsage is 0x0
-[ZYC_RtOs : INFO] : fsc : g_memPeakUsage is 0x0
-[ZYC_RtOs : INFO] : fsc : g_memStartAddr is 0x2590
 [ZYC_RtOs : INFO] : OS_MAX_TCB_NUM = 5
-[ZYC_RtOs : INFO] : sizeof TagTskCb is 88
 [ZYC_RtOs : INFO] : g_tskCbArray 's address is 122c0
 [ZYC_RtOs : INFO] : task init end
 [ZYC_RtOs : INFO] : ----------------------------This is g_tskCbArray[1]------------------------------------------
@@ -169,16 +163,6 @@ Started cell "inmate-demo-1"
 [ZYC_RtOs : INFO] : g_tskCbArray[2].priority 			is 20
 [ZYC_RtOs : INFO] : g_tskCbArray[2].topOfStack 			is 0x11e60
 [ZYC_RtOs : INFO] : g_tskCbArray[2].name 			is TestTask2
-[ZYC_RtOs : INFO] : ----------------------------------------------------------------------------------------
-[ZYC_RtOs : INFO] : ----------------------------This is g_tskCbArray[3]------------------------------------------
-[ZYC_RtOs : INFO] : g_tskCbArray[3].node 			is 170a8
-[ZYC_RtOs : INFO] : g_tskCbArray[3].stackPointer 	is 0
-[ZYC_RtOs : INFO] : g_tskCbArray[3].stackSize 		is 0
-[ZYC_RtOs : INFO] : g_tskCbArray[3].taskPid 			is 4
-[ZYC_RtOs : INFO] : g_tskCbArray[3].stackCfgFlg 			is 0
-[ZYC_RtOs : INFO] : g_tskCbArray[3].priority 			is 0
-[ZYC_RtOs : INFO] : g_tskCbArray[3].topOfStack 			is 0x0
-[ZYC_RtOs : INFO] : g_tskCbArray[3].name 			is 
 [ZYC_RtOs : INFO] : ----------------------------------------------------------------------------------------
 [ZYC_RtOs : INFO] : Now We want to sche
 [ZYC_RtOs : INFO] : find index is 1
