@@ -150,48 +150,6 @@ Started cell "inmate-demo-1"
 [ZYC_RtOs : INFO] : sizeof TagTskCb is 88
 [ZYC_RtOs : INFO] : g_tskCbArray 's address is 122c0
 [ZYC_RtOs : INFO] : task init end
-[ZYC_RtOs : INFO] : fsc : g_fscMemBitMap is 0x10001
-[ZYC_RtOs : INFO] : fsc : g_memTotalSize is 0xffe0
-[ZYC_RtOs : INFO] : fsc : g_memUsage is 0x2d8
-[ZYC_RtOs : INFO] : fsc : g_memPeakUsage is 0x2d8
-[ZYC_RtOs : INFO] : fsc : g_memStartAddr is 0x2590
-[ZYC_RtOs : INFO] : ----------------------------This is g_tskCbArray[1]------------------------------------------
-[ZYC_RtOs : INFO] : g_tskCbArray[1].node 			is 170a8
-[ZYC_RtOs : INFO] : g_tskCbArray[1].stackPointer 	is 0
-[ZYC_RtOs : INFO] : g_tskCbArray[1].stackSize 		is 0
-[ZYC_RtOs : INFO] : g_tskCbArray[1].taskPid 			is 2
-[ZYC_RtOs : INFO] : g_tskCbArray[1].stackCfgFlg 			is 0
-[ZYC_RtOs : INFO] : g_tskCbArray[1].priority 			is 0
-[ZYC_RtOs : INFO] : g_tskCbArray[1].topOfStack 			is 0x0
-[ZYC_RtOs : INFO] : g_tskCbArray[1].name 			is 
-[ZYC_RtOs : INFO] : ----------------------------------------------------------------------------------------
-[ZYC_RtOs : INFO] : ----------------------------This is g_tskCbArray[2]------------------------------------------
-[ZYC_RtOs : INFO] : g_tskCbArray[2].node 			is 12348
-[ZYC_RtOs : INFO] : g_tskCbArray[2].stackPointer 	is 0
-[ZYC_RtOs : INFO] : g_tskCbArray[2].stackSize 		is 0
-[ZYC_RtOs : INFO] : g_tskCbArray[2].taskPid 			is 3
-[ZYC_RtOs : INFO] : g_tskCbArray[2].stackCfgFlg 			is 0
-[ZYC_RtOs : INFO] : g_tskCbArray[2].priority 			is 0
-[ZYC_RtOs : INFO] : g_tskCbArray[2].topOfStack 			is 0x0
-[ZYC_RtOs : INFO] : g_tskCbArray[2].name 			is 
-[ZYC_RtOs : INFO] : ----------------------------------------------------------------------------------------
-[ZYC_RtOs : INFO] : ----------------------------This is g_tskCbArray[3]------------------------------------------
-[ZYC_RtOs : INFO] : g_tskCbArray[3].node 			is 123d0
-[ZYC_RtOs : INFO] : g_tskCbArray[3].stackPointer 	is 0
-[ZYC_RtOs : INFO] : g_tskCbArray[3].stackSize 		is 0
-[ZYC_RtOs : INFO] : g_tskCbArray[3].taskPid 			is 4
-[ZYC_RtOs : INFO] : g_tskCbArray[3].stackCfgFlg 			is 0
-[ZYC_RtOs : INFO] : g_tskCbArray[3].priority 			is 0
-[ZYC_RtOs : INFO] : g_tskCbArray[3].topOfStack 			is 0x0
-[ZYC_RtOs : INFO] : g_tskCbArray[3].name 			is 
-[ZYC_RtOs : INFO] : ----------------------------------------------------------------------------------------
-[ZYC_RtOs : INFO] : g_tskCbFreeList's next is 12348
-[ZYC_RtOs : INFO] : g_tskCbFreeList's next next is 123d0
-[ZYC_RtOs : INFO] : g_tskCbFreeList's next next next is 12458
-[ZYC_RtOs : INFO] : g_tskCbFreeList's prev is 12458
-[ZYC_RtOs : INFO] : g_tskCbFreeList's prev prev is 123d0
-[ZYC_RtOs : INFO] : g_tskCbFreeList's prev prev prev is 12348
-[ZYC_RtOs : INFO] : g_testTskHandle is 2
 [ZYC_RtOs : INFO] : ----------------------------This is g_tskCbArray[1]------------------------------------------
 [ZYC_RtOs : INFO] : g_tskCbArray[1].node 			is 0
 [ZYC_RtOs : INFO] : g_tskCbArray[1].stackPointer 	is 12168
